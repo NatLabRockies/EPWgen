@@ -1,0 +1,10 @@
+PyQt5
+pandas==1.3
+numpy==1.2
+paramiko
+scp
+isd
+meteostat
+timezonefinder
+pytz
+requests

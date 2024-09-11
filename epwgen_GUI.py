@@ -96,6 +96,21 @@ class MainWindow(QWidget):
                 error_msg.exec_()
                 return  # Exit the function without continuing if the year is invalid
 
+            # Generate the output file path
+            output_filename = f"{save_name.replace(' ', '_').replace('.', '_')}_{year}.epw"
+            output_path = os.path.join(save_folder, output_filename)
+
+            # Check if the file already exists
+            if os.path.exists(output_path):
+                # Show error message if the file already exists
+                error_msg = QMessageBox()
+                error_msg.setIcon(QMessageBox.Warning)
+                error_msg.setWindowTitle("File Already Exists")
+                error_msg.setText(f"The file '{output_filename}' already exists in the selected location: {save_folder}.")
+                error_msg.setStandardButtons(QMessageBox.Ok)
+                error_msg.exec_()
+                return  # Exit the function without continuing if the file already exists
+
             # Call the function to retrieve weather data
             retrieve_status, distance, wmo, hdd, cdd, latitude_station, longitude_station, _ = run_individual_location(lat, lon, year, file_type, save_folder, save_name)
 
@@ -148,6 +163,7 @@ class MainWindow(QWidget):
 
             # Retrieve data for the current location
             retrieve_status, distance, wmo, hdd, cdd, latitude_station, longitude_station, _ = run_individual_location(lat, lon, year, file_type, save_folder, save_name)
+
 
             # Update the DataFrame
             zipcodes.at[index, f"Do we have data for {year}?"] = retrieve_status

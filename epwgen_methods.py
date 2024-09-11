@@ -14,6 +14,7 @@ import sys
 import os
 
 
+
 def convert_utc_to_local(df, local_tz):
     """
     Convert the datetime index of the DataFrame from UTC to a local timezone.
@@ -38,7 +39,6 @@ def convert_utc_to_local(df, local_tz):
     df.index = df.index.tz_convert(local_tz)
     return df
 
-
 def filter_dataframe_by_date(df, start_date, end_date, timezone=None):
     """
     Filter the DataFrame to include rows between the specified start and end dates,
@@ -55,7 +55,6 @@ def filter_dataframe_by_date(df, start_date, end_date, timezone=None):
 
     return df.loc[(df.index >= start_date) & (df.index <= end_date)]
 
-
 def get_parameters_MERRA2(lat, lon, year):
     api_endpoint = f"https://power.larc.nasa.gov/api/temporal/hourly/point?community=SB&parameters=&longitude={lon}&latitude={lat}&start={year}0101&end={year}1231&format=EPW"
     response = requests.get(api_endpoint)
@@ -63,7 +62,6 @@ def get_parameters_MERRA2(lat, lon, year):
     df = pd.read_csv(csv_data, skiprows=8, header=None)
     header = '\n'.join(response.text.splitlines()[:8])
     return df, header
-
 
 def merge_data(df, data):
     """
@@ -73,7 +71,6 @@ def merge_data(df, data):
         if not df[col].isna().all():
             df[col] = list(data['temp'][1:])
     return df
-
 
 def check_missing_hours(year, df):
     """
@@ -91,7 +88,6 @@ def check_missing_hours(year, df):
 
     return missing_hours_num, largest_consecutive_group
 
-
 def fix_wmo(wmo):
     """
     Attempts to fix or standardize the WMO code format.
@@ -104,49 +100,72 @@ def fix_wmo(wmo):
             return get_wmo_from_icao_NOAA(icao) or icao
     return wmo
 
-
 def get_noaa_merra2_data(lat, lon, year, file_type, save_folder):
     """
     Retrieves NOAA and MERRA2 data for a specific location and year.
     """
     retrieve_status = True
-    data_noaa, tz, distance, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists = get_data_noaa(lat, lon, year, save_folder)
+    data_noaa, tz, distance, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists, incomplete_timeseries = get_data_noaa(lat, lon, year, save_folder)
 
     if epw_exists:
-        return '', '', '', '', '', '', wmo, epw_exists
-
-    info_dict = {
-        'timeshift': get_time_shift(tz),
-        'elevation': elevation,
-        'wmo': wmo,
-        'station_name': station_name,
-        'state': state,
-        'country': country,
-        'lat': latitude_station,
-        'lon': longitude_station,
-        'weather_file_type': file_type
-    }
+        df_merged = ''
+        retrieve_status = False
+        distance = ''
+        hdd = ''
+        cdd = ''
+        latitude_station = ''
+        longitude_station = ''
+        info_dict = ''
+        epw_exists = True
+        return df_merged, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists
+    elif incomplete_timeseries:
+        df_merged = ''
+        retrieve_status = False
+        distance = np.nan
+        hdd = ''
+        cdd = ''
+        latitude_station = ''
+        longitude_station = ''
+        info_dict = '' 
+        wmo = ''
+        epw_exists = False
+        return df_merged, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists
 
     try:
         data_noaa_tz_adj = filter_dataframe_by_date(convert_utc_to_local(data_noaa, tz), datetime(year, 1, 1), datetime(year+1, 1, 1))
     except AttributeError:
-        print("We don't have NOAA data for this location/year")
-        return [], False, info_dict, np.nan, '', '', wmo, False
+        # print("We don't have NOAA data for this location/year")
+        df_merged = ''
+        retrieve_status = False
+        distance = np.nan
+        hdd = ''
+        cdd = ''
+        latitude_station = ''
+        longitude_station = ''
+        info_dict = '' 
+        epw_exists = False
+        return df_merged, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists
 
-    missing_hours_num, largest_consecutive_group = check_missing_hours(year, data_noaa_tz_adj)
-    if largest_consecutive_group > 3:
-        print('More than 3 consecutive missing hours')
-        return [], False, info_dict, np.nan, '', '', wmo, False
+    info_dict = {
+    'timeshift': get_time_shift(tz),
+    'elevation': elevation,
+    'wmo': wmo,
+    'station_name': station_name,
+    'state': state,
+    'country': country,
+    'lat': latitude_station,
+    'lon': longitude_station,
+    'weather_file_type': file_type
+    }
 
     data_noaa_tz_adj_h = data_noaa_tz_adj.resample('H').mean()
     data_noaa_tz_adj_h_interpolated = data_noaa_tz_adj_h.interpolate(method='linear', limit=3, limit_direction='forward')
     hdd, cdd = calculate_hdd_cdd(data_noaa_tz_adj_h_interpolated, 'temp')
 
-    df_merra2, header_merra2 = get_parameters_MERRA2(lat, lon, year)
+    df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
     df_merged = merge_data(df_merra2, data_noaa_tz_adj_h_interpolated)
 
     return df_merged, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists
-
 
 def run_individual_location(lat, lon, year, file_type, save_folder, save_name):
     """
@@ -154,21 +173,33 @@ def run_individual_location(lat, lon, year, file_type, save_folder, save_name):
     """
     data_meteostat_merra2, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists = get_noaa_merra2_data(lat, lon, year, file_type, save_folder)
     if epw_exists:
-        return True, '', wmo, '', '', True
-    if retrieve_status:
+        retrieve_status = False
+        distance = ''
+        hdd = ''
+        cdd = ''
+        latitude_station = ''
+        longitude_station = ''
+        retrieve_info_closest_other_locations = True
+        # return retrieve_status, distance, info_dict['wmo'], hdd, cdd, latitude_station, longitude_station, retrieve_info_closest_other_locations
+    elif retrieve_status:
+        retrieve_info_closest_other_locations = False
+        #Save the EPW file
         if save_name != None:
             output_path = os.path.join(save_folder, f"{save_name.replace(' ', '_').replace('.', '_')}_{year}.epw")
         else:
-            output_path = os.path.join(save_folder, f"{info_dict['wmo']}_{year}.epw")
+            output_path = os.path.join(save_folder, f"{wmo}_{year}.epw")
         data_meteostat_merra2.to_csv(output_path, header=False, index=False)
         with open(output_path, 'r') as original_file:
             data_content = original_file.read()
         header_lines = create_header(data_meteostat_merra2, year, info_dict)
         with open(output_path, 'w') as new_file:
             new_file.write("\n".join(header_lines) + "\n" + data_content)
+    else:
+        retrieve_info_closest_other_locations = False
+        retrieve_status = False
+        print('No data available for this location/year.')
 
-    return retrieve_status, distance, info_dict['wmo'], hdd, cdd, latitude_station, longitude_station, False
-
+    return retrieve_status, distance, wmo, hdd, cdd, latitude_station, longitude_station, retrieve_info_closest_other_locations
 
 def get_time_shift(timezone_name):
     """
@@ -178,7 +209,6 @@ def get_time_shift(timezone_name):
     now = datetime.now(timezone)
     utc_offset = now.utcoffset()
     return int(utc_offset.total_seconds() // 3600)  # Return hours offset only
-
 
 def calculate_hdd_cdd(df, temperature_column):
     """
@@ -251,41 +281,59 @@ def get_data_noaa(lat, lon, year, save_folder):
     end = datetime(year + 1, 1, 2)
 
     stations = Stations().nearby(lat, lon)
+
     epw_exists = False
     station_number = 0
     len_data = 0
 
-    while len_data < 8000:
+    incomplete_timeseries = True
+    while incomplete_timeseries:
         station_number += 1
-        wmo = fix_wmo(str(stations.fetch(station_number).index.values[0]))
+        wmo = fix_wmo(str(stations.fetch(station_number).index.values[-1]))
+        # First check if EPW already exists
         if check_epw_exists(save_folder, year, wmo):
             epw_exists = True
+            incomplete_timeseries = False
             break
         data = Hourly(stations.fetch(station_number), start, end, model=True).fetch()
         len_data = len(data)
+        missing_hours_num, largest_consecutive_group = check_missing_hours(year, data)
+        if (len_data > 8000) & (largest_consecutive_group <= 3):
+            incomplete_timeseries = False
+        distance = stations.fetch(station_number)['distance'].values[-1]
+        # Let's stop after 100mi
+        if distance > 160000:
+            break
 
-    if epw_exists:
-        return '', '', '', '', wmo, '', '', '', epw_exists
+    if epw_exists | incomplete_timeseries:
+        data = ''
+        timezone = ''
+        distance = ''
+        elevation = ''
+        station_name = ''
+        state = ''
+        country = ''
+        latitude_station = ''
+        longitude_station = ''
+                
+    else:
+        station_info = stations.fetch(station_number)
+        timezone = station_info['timezone'].values[-1]
+        elevation = station_info['elevation'].values[-1]
+        distance = stations.fetch()['distance'].values[-1]
+        wmo = fix_wmo(str(station_info.index.values[-1]))
+        station_name = station_info['name'].values[-1]
+        state = station_info['region'].values[-1]
+        country = station_info['country'].values[-1]
+        latitude_station = station_info['latitude'].values[-1]
+        longitude_station = station_info['longitude'].values[-1]
 
-    station_info = stations.fetch(station_number)
-    timezone = station_info['timezone'].values[0]
-    elevation = station_info['elevation'].values[0]
-    distance = stations.fetch()['distance'].values[0]
-    wmo = fix_wmo(str(station_info.index.values[0]))
-    station_name = station_info['name'].values[0]
-    state = station_info['region'].values[0]
-    country = station_info['country'].values[0]
-    latitude_station = station_info['latitude'].values[0]
-    longitude_station = station_info['longitude'].values[0]
-
-    return data, timezone, distance, elevation, wmo, station_name, state, country,latitude_station, longitude_station, epw_exists
-
+    return data, timezone, distance, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists,incomplete_timeseries
 
 # Helper function to check and update missing data
 def update_if_missing(df, index, col_name, new_value):
     if pd.isna(df.at[index, col_name]) or not df.at[index, col_name]:
         df.at[index, col_name] = new_value
-
 
 def retrieve_info_other_location(wmo, zipcodes, year):
     retrieve_status = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"Do we have data for {year}?"].values[0]
@@ -393,68 +441,3 @@ def find_closest_design_condition(lat,lon,design_conditions_file):
 
     # Return the design conditions for 2021
     return closest_row['2021_design_conditions']
-
-# save_folder = 'epws_wmo'
-# file_type = 'AMY'
-# year = 2022
-
-# if run_list:
-#     save_name = None
-#     # Load the zip codes CSV once
-#     save_folder = 'epws_wmo'
-#     file_type = 'AMY'
-#     year = 2022
-#     csv_list_name = 'resources/zip_code_list.csv'
-#     zipcodes = pd.read_csv(csv_list_name, dtype={f'Do we have data for {year}?': str, f'weather_station_wmo_{year}': str})
-
-#     # Initialize a counter for iterations
-#     counter = 0
-
-#     # Process each row in the DataFrame starting from the specified index
-#     for index, row in zipcodes.iloc[8100:].iterrows():
-#         print(index)
-#         zip_code = str(row['zip0']).zfill(5)  # Ensure the zip code is a string and pad with leading zeros if needed
-#         lat = row['lat']
-#         lon = row['lng']
-
-#         # Retrieve data for the current location
-#         retrieve_status, distance, wmo, hdd, cdd, retrieve_info_closest_other_locations = run_individual_location(lat, lon, year, file_type, save_folder)
-
-#         if retrieve_info_closest_other_locations:
-#             try:
-#                 retrieve_status, distance, hdd, cdd = retrieve_info_other_location(wmo, zipcodes, year)
-#             except:
-#                 print(wmo)
-#                 retrieve_status, distance, hdd, cdd = retrieve_info_other_location(wmo, zipcodes, year)
-
-
-#         # Update the DataFrame only if the cell is empty or contains a placeholder (like 'nan')
-#         update_if_missing(zipcodes, index, f"Do we have data for {year}?", retrieve_status)
-#         update_if_missing(zipcodes, index, f"distance_location_station_miles_{year}", distance * 0.000621371)  # Convert from meters to miles
-#         update_if_missing(zipcodes, index, f"weather_station_wmo_{year}", wmo)
-#         update_if_missing(zipcodes, index, f"hdd_base65F_{year}", hdd)
-#         update_if_missing(zipcodes, index, f"cdd_base65F_{year}", cdd)
-
-#         # Increment the counter
-#         counter += 1
-
-#         # Every 10 iterations, save the DataFrame and reopen it
-#         if counter % 10 == 0:
-#             # Save the DataFrame to the CSV file
-#             zipcodes.to_csv(csv_list_name, index=False)
-
-#             # Reopen the file to ensure the latest version is loaded
-#             zipcodes = pd.read_csv(csv_list_name, dtype={f'Do we have data for {year}?': str, f'weather_station_wmo_{year}': str})
-
-#     # After the loop is done, ensure the latest state is saved
-#     zipcodes.to_csv(csv_list_name, index=False)
-
-# else:
-#     save_folder = 'epws_wmo'
-#     file_type = 'AMY'
-#     year = 2022
-#     lat = 41
-#     lon = -110
-#     save_name = 'tEsT'
-#     retrieve_status, distance, wmo, hdd, cdd, retrieve_info_closest_other_locations = run_individual_location(lat, lon, year, file_type, save_folder, save_name)
-

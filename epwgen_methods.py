@@ -61,15 +61,54 @@ def get_parameters_MERRA2(lat, lon, year):
     csv_data = io.StringIO(response.text)
     df = pd.read_csv(csv_data, skiprows=8, header=None)
     header = '\n'.join(response.text.splitlines()[:8])
+
+    # Check if the dataframe has more than 8761 rows and truncate if necessary
+    # Sometimes MERRA2 erroneously provides extra rows
+    if len(df) > 8760:
+        df = df.iloc[:8760]
+
+
     return df, header
 
+# def merge_data(df, data):
+#     """
+#     Merges two datasets, replacing specific columns in `df` with corresponding values from `data`.
+#     """
+
+#     print(df.head(5))
+#     for col in [6, 7, 8, 33, 30, 21, 20, 9]:  # Replace indices with more descriptive names if possible
+#         if not df[col].isna().all():
+#             df[col] = list(data['temp'][1:])
+#     print(df.head(5))
+#     return df
+
+
 def merge_data(df, data):
-    """
-    Merges two datasets, replacing specific columns in `df` with corresponding values from `data`.
-    """
-    for col in [6, 7, 8, 33, 30, 21, 20, 9]:  # Replace indices with more descriptive names if possible
-        if not df[col].isna().all():
-            df[col] = list(data['temp'][1:])
+    # Tdb
+    if not data['temp'].isna().all():
+        df[6] = list(data['temp'][1:])
+    # Tdew
+    if not data['dwpt'].isna().all():
+        df[7] = list(data['dwpt'][1:])
+    # RH
+    if not data['rhum'].isna().all():
+        df[8] = list(data['rhum'][1:])
+    # Precep
+    if not data['prcp'].isna().all():
+        df[33] = list(data['prcp'][1:])
+    # Snow
+    if not data['snow'].isna().all():
+        df[30] = list(data['snow'][1:])
+    # Wspeed
+    if not data['wspd'].isna().all():
+        df[21] = list(data['wspd'][1:])
+    # Wdir
+    if not data['wdir'].isna().all():
+        df[20] = list(data['wdir'][1:])
+    # P, go from hPa to Pa
+    if not data['pres'].isna().all():
+        df[9] = [x * 100 for x in list(data['pres'][1:])]
+
     return df
 
 def check_missing_hours(year, df):
@@ -106,7 +145,6 @@ def get_noaa_merra2_data(lat, lon, year, file_type, save_folder):
     """
     retrieve_status = True
     data_noaa, tz, distance, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists, incomplete_timeseries = get_data_noaa(lat, lon, year, save_folder)
-
     if epw_exists:
         df_merged = ''
         retrieve_status = False
@@ -161,8 +199,8 @@ def get_noaa_merra2_data(lat, lon, year, file_type, save_folder):
     data_noaa_tz_adj_h = data_noaa_tz_adj.resample('H').mean()
     data_noaa_tz_adj_h_interpolated = data_noaa_tz_adj_h.interpolate(method='linear', limit=3, limit_direction='forward')
     hdd, cdd = calculate_hdd_cdd(data_noaa_tz_adj_h_interpolated, 'temp')
-
     df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
+
     df_merged = merge_data(df_merra2, data_noaa_tz_adj_h_interpolated)
 
     return df_merged, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists
@@ -214,11 +252,11 @@ def calculate_hdd_cdd(df, temperature_column):
     """
     Calculate Heating Degree Days (HDD) and Cooling Degree Days (CDD) from hourly temperature data in Celsius.
     """
-    df[temperature_column] = df[temperature_column] * 9 / 5 + 32
+    df[temperature_column + '_F'] = df[temperature_column] * 9 / 5 + 32
     base_temperature = 65
 
     df['date'] = df.index.to_series().dt.date
-    daily_mean_temp = df.groupby('date')[temperature_column].mean().reset_index()
+    daily_mean_temp = df.groupby('date')[temperature_column + '_F'].mean().reset_index()
     daily_mean_temp.columns = ['date', 'mean_temp']
 
     daily_mean_temp['HDD'] = (base_temperature - daily_mean_temp['mean_temp']).clip(lower=0)
@@ -441,3 +479,5 @@ def find_closest_design_condition(lat,lon,design_conditions_file):
 
     # Return the design conditions for 2021
     return closest_row['2021_design_conditions']
+
+

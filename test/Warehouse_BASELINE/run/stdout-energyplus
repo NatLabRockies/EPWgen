@@ -1,0 +1,83 @@
+EnergyPlus Starting
+EnergyPlus, Version 24.1.0-9d7789a3ac, YMD=2025.01.23 21:34
+Initializing Response Factors
+Calculating CTFs for "INTERIORFURNISHINGS"
+Calculating CTFs for "TYPICAL INSULATED METAL BUILDING ROOF R-10.31"
+Calculating CTFs for "TYPICAL INSULATED STEEL FRAMED EXTERIOR WALL R-15.63"
+Calculating CTFs for "TYPICAL INTERIOR WALL"
+Calculating CTFs for "FOUNDATION F 1.26W/M*K PERIM 1062.2M AREA 80028.36M2"
+Calculating CTFs for "FOUNDATION F 1.26W/M*K PERIM 403.8M AREA 20172.71M2"
+Calculating CTFs for "FOUNDATION F 1.26W/M*K PERIM 659.4M AREA 59939.46M2"
+Initializing Window Optical Properties
+Initializing Solar Calculations
+Allocate Solar Module Arrays
+Initializing Zone and Enclosure Report Variables
+Initializing Surface (Shading) Report Variables
+Computing Interior Solar Absorption Factors
+Determining Shadowing Combinations
+Computing Window Shade Absorption Factors
+Proceeding with Initializing Solar Calculations
+Initializing Surfaces
+Initializing Outdoor environment for Surfaces
+Setting up Surface Reporting Variables
+Initializing Temperature and Flux Histories
+Initializing Window Shading
+Computing Interior Absorption Factors
+Computing Interior Diffuse Solar Absorption Factors
+Initializing Solar Heat Gains
+Initializing Internal Heat Gains
+Initializing Interior Solar Distribution
+Initializing Interior Convection Coefficients
+Gathering Information for Predefined Reporting
+Completed Initializing Surface Heat Balance
+Calculate Outside Surface Heat Balance
+Calculate Inside Surface Heat Balance
+Calculate Air Heat Balance
+Initializing HVAC
+Warming up
+Warming up
+Warming up
+Warming up
+Warming up
+Warming up
+Performing Zone Sizing Simulation
+...for Sizing Period: #1 ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB
+Warming up
+Warming up
+Warming up
+Warming up
+Performing Zone Sizing Simulation
+...for Sizing Period: #2 ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB
+Calculating System sizing
+...for Sizing Period: #1 ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB
+Calculating System sizing
+...for Sizing Period: #2 ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB
+Adjusting Air System Sizing
+Adjusting Standard 62.1 Ventilation Sizing
+Initializing Simulation
+Reporting Surfaces
+Beginning Primary Simulation
+Initializing New Environment Parameters
+Warming up {1}
+Warming up {2}
+Warming up {3}
+Warming up {4}
+Warming up {5}
+Starting Simulation at 01/01/2022 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=01/21/2022
+Continuing Simulation at 01/21/2022 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=02/10/2022
+Continuing Simulation at 02/10/2022 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=03/02/2022
+Continuing Simulation at 03/02/2022 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=03/22/2022
+Continuing Simulation at 03/22/2022 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=04/11/2022
+Continuing Simulation at 04/11/2022 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=05/01/2022
+Continuing Simulation at 05/01/2022 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=05/21/2022
+Continuing Simulation at 05/21/2022 for RUN PERIOD 1
+**FATAL:Error in Reading Weather Data
+EnergyPlus Run Time=00hr 00min  1.06sec
+Program terminated: EnergyPlus Terminated--Error(s) Detected.

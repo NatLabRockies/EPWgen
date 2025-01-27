@@ -1,0 +1,230 @@
+Program Version,EnergyPlus, Version 24.1.0-9d7789a3ac, YMD=2025.01.23 21:34,
+   ** Warning ** Timestep: Requested number (1) is less than the suggested minimum of 4.
+   **   ~~~   ** Please see entry for Timestep in Input/Output Reference for discussion of considerations.
+   ************* Beginning Zone Sizing Calculations
+   ** Warning ** GetSurfaceData: There are 2 coincident/collinear vertices; These have been deleted unless the deletion would bring the number of surface sides < 3.
+   **   ~~~   ** For explicit details on each problem surface, use Output:Diagnostics,DisplayExtraWarnings;
+   ** Warning ** CheckUsedConstructions: There are 10 nominally unused constructions in input.
+   **   ~~~   ** For explicit details on each unused construction, use Output:Diagnostics,DisplayExtraWarnings;
+   ** Warning ** GetInternalHeatGains: People="SPACE TYPE 3 PEOPLE" has comfort related schedules but no thermal comfort model selected.
+   **   ~~~   ** If schedules are specified for air velocity, clothing insulation, and/or work efficiency but no thermal comfort
+   **   ~~~   ** thermal comfort model is selected, the schedules will be listed as unused schedules in the .err file.
+   **   ~~~   ** To avoid these errors, select a valid thermal comfort model or eliminate these schedules in the PEOPLE input.
+   ** Warning ** Seems like you already tried to get a Handle on this Actuator 1times.
+   **   ~~~   ** Occurred for componentType='SCHEDULE:YEAR', controlType='SCHEDULE VALUE', uniqueKey='WAREHOUSE FINE STORAGE COOLING SETPOINT SCHEDULE'.
+   **   ~~~   ** You should take note that there is a risk of overwritting.
+   ** Warning ** Seems like you already tried to get a Handle on this Actuator 1times.
+   **   ~~~   ** Occurred for componentType='SCHEDULE:YEAR', controlType='SCHEDULE VALUE', uniqueKey='WAREHOUSE FINE STORAGE HEATING SETPOINT SCHEDULE'.
+   **   ~~~   ** You should take note that there is a risk of overwritting.
+   ************* Beginning System Sizing Calculations
+   ** Warning ** ManageSizing: For a plant sizing run, there must be at least 1 Sizing:Plant object input. SimulationControl Plant Sizing option ignored.
+   ** Warning ** GetOAControllerInputs: Controller:MechanicalVentilation="CONTROLLER MECHANICAL VENTILATION 1"
+   **   ~~~   ** Cannot locate a matching DesignSpecification:ZoneAirDistribution object for Zone="THERMAL ZONE 1".
+   **   ~~~   ** Using default zone air distribution effectiveness of 1.0 for heating and cooling.
+   ** Warning ** GetOAControllerInputs: Controller:MechanicalVentilation="CONTROLLER MECHANICAL VENTILATION 2"
+   **   ~~~   ** Cannot locate a matching DesignSpecification:ZoneAirDistribution object for Zone="THERMAL ZONE 2".
+   **   ~~~   ** Using default zone air distribution effectiveness of 1.0 for heating and cooling.
+   ** Warning ** GetOAControllerInputs: Controller:MechanicalVentilation="CONTROLLER MECHANICAL VENTILATION 3"
+   **   ~~~   ** Cannot locate a matching DesignSpecification:ZoneAirDistribution object for Zone="THERMAL ZONE 3".
+   **   ~~~   ** Using default zone air distribution effectiveness of 1.0 for heating and cooling.
+   ** Warning ** Sizing: Coil:Cooling:DX:SingleSpeed "THERMAL ZONE 1 PSZ-AC 1SPD DX AC CLG COIL": Rated air volume flow rate per watt of rated total cooling capacity is out of range.
+   **   ~~~   ** Min Rated Vol Flow Per Watt=[4.027E-005], Rated Vol Flow Per Watt=[2.449E-005], Max Rated Vol Flow Per Watt=[6.041E-005]. See Input Output Reference Manual for valid range.
+   ** Warning ** The Standard Ratings is calculated for Coil:Cooling:DX:SingleSpeed = THERMAL ZONE 2 PSZ-AC 1SPD DX AC CLG COIL 8807KBTU/HR 9.5EER but not at the AHRI test condition due to curve out of bound.
+   **   ~~~   **  Review the Standard Ratings calculations in the Engineering Reference for this coil type. Also, use Output:Diagnostics, DisplayExtraWarnings for further guidance.
+   ** Warning ** Sizing: Coil:Cooling:DX:SingleSpeed "THERMAL ZONE 2 PSZ-AC 1SPD DX AC CLG COIL 8807KBTU/HR 9.5EER": Rated air volume flow rate per watt of rated total cooling capacity is out of range.
+   **   ~~~   ** Min Rated Vol Flow Per Watt=[4.027E-005], Rated Vol Flow Per Watt=[2.530E-005], Max Rated Vol Flow Per Watt=[6.041E-005]. See Input Output Reference Manual for valid range.
+   ** Warning ** The Standard Ratings is calculated for Coil:Cooling:DX:SingleSpeed = THERMAL ZONE 3 PSZ-AC 1SPD DX AC CLG COIL 6119KBTU/HR 9.5EER but not at the AHRI test condition due to curve out of bound.
+   **   ~~~   **  Review the Standard Ratings calculations in the Engineering Reference for this coil type. Also, use Output:Diagnostics, DisplayExtraWarnings for further guidance.
+   ** Warning ** Sizing: Coil:Cooling:DX:SingleSpeed "THERMAL ZONE 3 PSZ-AC 1SPD DX AC CLG COIL 6119KBTU/HR 9.5EER": Rated air volume flow rate per watt of rated total cooling capacity is out of range.
+   **   ~~~   ** Min Rated Vol Flow Per Watt=[4.027E-005], Rated Vol Flow Per Watt=[3.250E-005], Max Rated Vol Flow Per Watt=[6.041E-005]. See Input Output Reference Manual for valid range.
+   ** Warning ** Output:Meter: invalid Key Name="DISTRICTCOOLING:FACILITY" - not found.
+   ** Warning ** Output:Meter: invalid Key Name="DISTRICTHEATING:FACILITY" - not found.
+   ** Warning ** Output:Meter:MeterFileOnly requested for "Electricity:Facility" (TimeStep), already on "Output:Meter". Will report to both eplusout.eso and eplusout.mtr
+   ************* Testing Individual Branch Integrity
+   ************* All Branches passed integrity testing
+   ************* Testing Individual Supply Air Path Integrity
+   ************* All Supply Air Paths passed integrity testing
+   ************* Testing Individual Return Air Path Integrity
+   ************* All Return Air Paths passed integrity testing
+   ************* No node connection errors were found.
+   ************* Beginning Simulation
+   ** Warning ** Processing Monthly Tabular Reports: Variable names not valid for this simulation
+   **   ~~~   ** ...use Output:Diagnostics,DisplayExtraWarnings; to show more details on individual variables.
+   ** Severe  ** Invalid Weather Line at date=2022/ 5/26 Hour#= 3 Min#= 0
+   **   ~~~   ** Full Data Line=2022,5,26,3,0,?9?9?9?9E0?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9*9*9?9?9?9,9.8,7.9,88.0,,0.0,0.0,270.85,0.0,0.0,0.0,999999,999999,999999,999999,,,9.95,99,9999,99999,9,999999999,0.99,0.1,0.0,99,999.0,0.0,9
+   **   ~~~   ** Remainder of line=9.8,7.9,88.0,,0.0,0.0,270.85,0.0,0.0,0.0,999999,999999,999999,999999,,,9.95,99,9999,99999,9,999999999,0.99,0.1,0.0,99,999.0,0.0,9
+   **  Fatal  ** Error in Reading Weather Data
+   ...Summary of Errors that led to program termination:
+   ..... Reference severe error count=1
+   ..... Last severe error=Invalid Weather Line at date=2022/ 5/26 Hour#= 3 Min#= 0
+   *************
+   ************* ===== Recurring Surface Error Summary =====
+   ************* The following surface error messages occurred.
+   *************
+   ************* Base Surface does not surround subsurface errors occurring...
+   ************* Check that the GlobalGeometryRules object is expressing the proper starting corner and direction [CounterClockwise/Clockwise]
+   *************
+   ** Warning ** Base surface does not surround subsurface (CHKSBS), Overlap Status=No-Overlap
+   **   ~~~   **   The base surround errors occurred 117 times.
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 10"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 100"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 101"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 102"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 103"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 104"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 105"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 106"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 107"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 108"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 109"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 11"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 110"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 111"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 112"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 113"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 114"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 115"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 116"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 117"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 118"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 119"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 12"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 120"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 121"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 122"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 123"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 13"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 14"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 15"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 16"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 17"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 18"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 19"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 20"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 21"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 22"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 23"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 24"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 25"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 26"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 27"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 28"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 29"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 30"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 31"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 32"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 33"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 34"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 35"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 36"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 37"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 38"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 39"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 40"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 41"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 42"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 43"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 44"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 45"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 46"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 47"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 48"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 49"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 50"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 51"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 52"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 53"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 54"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 55"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 56"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 57"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 58"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 59"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 60"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 61"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 62"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 63"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 64"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 65"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 66"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 67"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 68"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 69"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 7"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 70"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 71"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 72"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 73"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 74"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 75"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 76"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 77"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 78"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 79"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 8"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 80"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 81"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 82"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 83"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 84"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 85"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 86"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 87"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 88"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 89"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 9"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 90"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 91"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 92"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 93"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 94"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 95"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 96"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 97"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 98"
+   **   ~~~   ** Surface "FACE 6" misses SubSurface "FACE 99"
+   ** Warning ** Base surface does not surround subsurface (CHKSBS), Overlap Status=No-Overlap
+   **   ~~~   **   The base surround errors occurred 29 times.
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 128"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 129"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 130"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 131"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 132"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 133"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 134"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 135"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 136"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 137"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 138"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 139"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 140"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 141"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 142"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 143"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 144"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 145"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 146"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 147"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 148"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 149"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 150"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 151"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 152"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 153"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 154"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 155"
+   **   ~~~   ** Surface "FACE 127" misses SubSurface "FACE 156"
+   *************
+   **   ~~~   **   The base surround errors occurred 146 times (total).
+   *************
+   *************
+   ************* ===== Final Error Summary =====
+   ************* The following error categories occurred.  Consider correcting or noting.
+   ************* Nominally Unused Constructions
+   ************* ..The nominally unused constructions warning is provided to alert you to potential conditions that can cause
+   ************* ..extra time during simulation. Each construction is calculated by the algorithm indicated in the HeatBalanceAlgorithm
+   ************* ..object. You may remove the constructions indicated (when you use the DisplayExtraWarnings option).
+   *************
+   ************* EnergyPlus Warmup Error Summary. During Warmup: 0 Warning; 0 Severe Errors.
+   ************* EnergyPlus Sizing Error Summary. During Sizing: 5 Warning; 0 Severe Errors.
+   ************* EnergyPlus Terminated--Fatal Error Detected. 166 Warning; 1 Severe Errors; Elapsed Time=00hr 00min  1.06sec

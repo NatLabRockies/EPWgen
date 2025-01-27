@@ -1,0 +1,2 @@
+zip,lat,lng,city,state_id,state_name,zcta,parent_zcta,population,density,county_fips,county_name,county_weights,county_names_all,county_fips_all,imprecise,military,timezone,Distance [km],Distamce [mi],Location,zip0,weather_station_wmo_2022,hdd_base65F_2022,cdd_base65F_2022,distance_location_station_miles_2022,EPW_file_name_2022
+98244,48.80005,-121.9544,Deming,WA,Washington,True,,2783,2.2,53073,Whatcom,"{""53073"": ""100""}",Whatcom,53073,False,False,America/Los_Angeles,42.71875096,26.53338569,Bellingham / Marietta-Alderwood,98244,0FD7Y,5935,284,12105.94511,True

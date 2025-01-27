@@ -1,0 +1,7 @@
+{
+   "created_at" : "20250124T043357Z",
+   "seed_file" : "../Warehouse_BASELINE.osm",
+   "steps" : [],
+   "updated_at" : "20250124T043411Z",
+   "weather_file" : "0FD7Y_2022.epw"
+}

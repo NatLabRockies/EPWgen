@@ -5,16 +5,16 @@ OS:Version,
 
 OS:Site,
   {20c387d2-9190-4ba2-9f2d-ddb0985e9716}, !- Handle
-  Cultus Lake,                            !- Name
-  49.08,                                  !- Latitude {deg}
-  -121.98,                                !- Longitude {deg}
-  -8,                                     !- Time Zone {hr}
-  46,                                     !- Elevation {m}
+  Denver / Stapleton International Co.,   !- Name
+  39.7833,                                !- Latitude {deg}
+  -104.8667,                              !- Longitude {deg}
+  -7,                                     !- Time Zone {hr}
+  1626,                                   !- Elevation {m}
   Urban;                                  !- Terrain
 
 OS:YearDescription,
   {ca4cdb1d-01e9-4a28-adfa-001048a7baf2}, !- Handle
-  2022,                                   !- Calendar Year
+  2023,                                   !- Calendar Year
   ,                                       !- Day of Week for Start Day
   ;                                       !- Is Leap Year
 
@@ -7544,17 +7544,17 @@ OS:Output:Variable,
 
 OS:WeatherFile,
   {9aa5d1e1-3855-46c3-adce-ad085cba1e7a}, !- Handle
-  Cultus Lake,                            !- City
-  BC,                                     !- State Province Region
-  CA,                                     !- Country
+  Denver / Stapleton International Co.,   !- City
+  CO,                                     !- State Province Region
+  US,                                     !- Country
   AMY,                                    !- Data Source
-  0FD7Y,                                  !- WMO Number
-  49.08,                                  !- Latitude {deg}
-  -121.98,                                !- Longitude {deg}
-  -8,                                     !- Time Zone {hr}
-  46,                                     !- Elevation {m}
-  /private/var/folders/cj/vhw1_9g1151dh76sjlgdyq19k7f3h5/T/osmodel-4f0c-b567-4c90-ee45-1737693237-0/resources/files/0FD7Y_2022.epw, !- Url
-  E5020496,                               !- Checksum
-  2022,                                   !- Start Date Actual Year
-  Saturday;                               !- Start Day of Week
+  72469,                                  !- WMO Number
+  39.7833,                                !- Latitude {deg}
+  -104.8667,                              !- Longitude {deg}
+  -7,                                     !- Time Zone {hr}
+  1626,                                   !- Elevation {m}
+  /private/var/folders/cj/vhw1_9g1151dh76sjlgdyq19k7f3h5/T/osmodel-5e54-d882-2ce9-2290-1740011246-0/resources/files/72469_2023.epw, !- Url
+  9E47D778,                               !- Checksum
+  2023,                                   !- Start Date Actual Year
+  Sunday;                                 !- Start Day of Week
 

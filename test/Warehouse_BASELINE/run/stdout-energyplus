@@ -1,5 +1,5 @@
 EnergyPlus Starting
-EnergyPlus, Version 24.1.0-9d7789a3ac, YMD=2025.01.23 21:34
+EnergyPlus, Version 24.1.0-9d7789a3ac, YMD=2025.02.19 17:33
 Initializing Response Factors
 Calculating CTFs for "INTERIORFURNISHINGS"
 Calculating CTFs for "TYPICAL INSULATED METAL BUILDING ROOF R-10.31"
@@ -46,6 +46,7 @@ Warming up
 Warming up
 Warming up
 Warming up
+Warming up
 Performing Zone Sizing Simulation
 ...for Sizing Period: #2 ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB
 Calculating System sizing
@@ -63,21 +64,47 @@ Warming up {2}
 Warming up {3}
 Warming up {4}
 Warming up {5}
-Starting Simulation at 01/01/2022 for RUN PERIOD 1
-Updating Shadowing Calculations, Start Date=01/21/2022
-Continuing Simulation at 01/21/2022 for RUN PERIOD 1
-Updating Shadowing Calculations, Start Date=02/10/2022
-Continuing Simulation at 02/10/2022 for RUN PERIOD 1
-Updating Shadowing Calculations, Start Date=03/02/2022
-Continuing Simulation at 03/02/2022 for RUN PERIOD 1
-Updating Shadowing Calculations, Start Date=03/22/2022
-Continuing Simulation at 03/22/2022 for RUN PERIOD 1
-Updating Shadowing Calculations, Start Date=04/11/2022
-Continuing Simulation at 04/11/2022 for RUN PERIOD 1
-Updating Shadowing Calculations, Start Date=05/01/2022
-Continuing Simulation at 05/01/2022 for RUN PERIOD 1
-Updating Shadowing Calculations, Start Date=05/21/2022
-Continuing Simulation at 05/21/2022 for RUN PERIOD 1
-**FATAL:Error in Reading Weather Data
-EnergyPlus Run Time=00hr 00min  1.06sec
-Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Warming up {6}
+Warming up {7}
+Starting Simulation at 01/01/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=01/21/2023
+Continuing Simulation at 01/21/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=02/10/2023
+Continuing Simulation at 02/10/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=03/02/2023
+Continuing Simulation at 03/02/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=03/22/2023
+Continuing Simulation at 03/22/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=04/11/2023
+Continuing Simulation at 04/11/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=05/01/2023
+Continuing Simulation at 05/01/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=05/21/2023
+Continuing Simulation at 05/21/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=06/10/2023
+Continuing Simulation at 06/10/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=06/30/2023
+Continuing Simulation at 06/30/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=07/20/2023
+Continuing Simulation at 07/20/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=08/09/2023
+Continuing Simulation at 08/09/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=08/29/2023
+Continuing Simulation at 08/29/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=09/18/2023
+Continuing Simulation at 09/18/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=10/08/2023
+Continuing Simulation at 10/08/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=10/28/2023
+Continuing Simulation at 10/28/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=11/17/2023
+Continuing Simulation at 11/17/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=12/07/2023
+Continuing Simulation at 12/07/2023 for RUN PERIOD 1
+Updating Shadowing Calculations, Start Date=12/27/2023
+Continuing Simulation at 12/27/2023 for RUN PERIOD 1
+Writing tabular output file results using HTML format.
+Computing Life Cycle Costs and Reporting
+Writing final SQL reports
+EnergyPlus Run Time=00hr 00min  2.47sec
+EnergyPlus Completed Successfully.

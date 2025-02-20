@@ -1,52 +1,15 @@
-import pandas as pd
-import numpy as np
-import paramiko
-from scp import SCPClient
-from isd import Batch
-from meteostat import Stations, Hourly
-from timezonefinder import TimezoneFinder
+import os, sys, math, ssl, io, pytz, numpy as np, pandas as pd, requests
 from datetime import datetime, timedelta, date
-import pytz
-import requests
-import ssl
-import io
-import sys
-from PyQt5.QtWidgets import (
-    QApplication, QWidget, QLabel, QLineEdit, QTextEdit, QPushButton, QVBoxLayout, QGridLayout, QMessageBox
-)
+from timezonefinder import TimezoneFinder
+from meteostat import Stations, Hourly
+from isd import Batch
+from scp import SCPClient
+import paramiko
+import calendar
+from pandas.errors import EmptyDataError
 
 
 
-
-def get_data_noaa(lat, lon, year):
-    #  The time zone used by Meteostat is Coordinated Universal Time (UTC).
-    # Disable SSL verification
-    ssl._create_default_https_context = ssl._create_unverified_context
-
-    start = datetime(year-1, 12, 31)
-    end = datetime(year+1, 1, 2)
-
-    # Use certifi's CA bundle
-    # ssl_context = ssl.create_default_context(cafile=certifi.where())
-    # Find the closest station
-    stations = Stations().nearby(lat, lon) 
-    # Get hourly data for the first station
-    data = Hourly(stations.fetch(1), start, end, model=True).fetch()
-    timezone = stations.fetch(1)['timezone'].values[0]
-    #elevation in meters
-    elevation = stations.fetch(1)['elevation'].values[0]
-    #Distance in m
-    distance = stations.fetch()['distance'].values[0]
-    #WMO
-    wmo = str(stations.fetch(1).index.values[0])
-    #Station Name
-    station_name = stations.fetch()['name'].values[0]
-    #State
-    state = stations.fetch()['region'].values[0]
-    #Country
-    country = stations.fetch()['country'].values[0]
-
-    return data, timezone, distance, elevation, wmo, station_name, state, country
 
 def convert_utc_to_local(df, local_tz):
     """
@@ -62,11 +25,13 @@ def convert_utc_to_local(df, local_tz):
     pandas.DataFrame
         DataFrame with datetime index converted to the specified local timezone.
     """
-    # Ensure the index is timezone-aware, set to UTC
+    if not pd.api.types.is_datetime64_any_dtype(df.index):
+        df = df.reset_index(level='station', drop=True)
+        df.index = pd.to_datetime(df.index)
+
     if df.index.tz is None:
         df.index = df.index.tz_localize('UTC')
-
-    # Convert the timezone of the index
+    
     df.index = df.index.tz_convert(local_tz)
     return df
 
@@ -74,131 +39,531 @@ def filter_dataframe_by_date(df, start_date, end_date, timezone=None):
     """
     Filter the DataFrame to include rows between the specified start and end dates,
     handling timezone differences appropriately.
-
-    Args:
-    df : pandas.DataFrame
-        DataFrame with a datetime index.
-    start_date : str or datetime-like
-        The beginning date of the interval to filter the DataFrame.
-    end_date : str or datetime-like
-        The end date of the interval to filter the DataFrame.
-    timezone : str, optional
-        The timezone to which to convert the dates before filtering,
-        if the datetime index is timezone-aware.
-
-    Returns:
-    pandas.DataFrame
-        DataFrame filtered to include only rows between the specified dates.
     """
-    # Convert string dates to datetime, considering the timezone
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
-    
+
     if timezone:
-        # Convert dates to the specified timezone if provided
         start_date = start_date.tz_localize(timezone)
         end_date = end_date.tz_localize(timezone)
     else:
-        # Make datetime index timezone-naive if no timezone is specified
         df.index = df.index.tz_localize(None)
 
-    # Filter the DataFrame
-    mask = (df.index >= start_date) & (df.index <= end_date)
-    return df.loc[mask]
+    return df.loc[(df.index >= start_date) & (df.index <= end_date)]
 
 def get_parameters_MERRA2(lat, lon, year):
     api_endpoint = f"https://power.larc.nasa.gov/api/temporal/hourly/point?community=SB&parameters=&longitude={lon}&latitude={lat}&start={year}0101&end={year}1231&format=EPW"
     response = requests.get(api_endpoint)
-    # Split the response text into lines
-    lines = response.text.splitlines()
-    header = ('\n'.join(lines[:8]))
-    # Convert back into a file-like object
-    csv_data = io.StringIO('\n'.join(lines))
-    # Read into a pandas DataFrame
+    csv_data = io.StringIO(response.text)
     df = pd.read_csv(csv_data, skiprows=8, header=None)
+    header = '\n'.join(response.text.splitlines()[:8])
+
+    # Check if the dataframe has more than 8761 rows and truncate if necessary
+    # Sometimes MERRA2 erroneously provides extra rows
+
+    if calendar.isleap(int(year)):
+        df = df.iloc[:8784]
+    else:
+        df = df.iloc[:8760]        
+
+
     return df, header
 
 def merge_data(df, data):
+    # Mapping of df column indices to the corresponding key names in data.
+    columns_to_process = {
+        6: 'temp',    # Dry bulb temperature
+        7: 'dwpt',    # Dew point temperature
+        8: 'rhum',    # Relative humidity
+        33: 'prcp',   # Precipitation
+        30: 'snow',   # Snow
+        21: 'wspd',   # Wind speed
+        20: 'wdir',   # Wind direction
+        9: 'pres'     # Pressure
+    }
 
-    if not df[6].isna().all():
-        df[6] = list(data['temp'][1:])
-    if not df[7].isna().all():
-        df[7] = list(data['temp'][1:])
-    if not df[8].isna().all():
-        df[8] = list(data['temp'][1:])
-    if not df[33].isna().all():
-        df[33] = list(data['temp'][1:])
-    if not df[30].isna().all():
-        df[30] = list(data['temp'][1:])
-    if not df[21].isna().all():
-        df[21] = list(data['temp'][1:])
-    if not df[20].isna().all():
-        df[20] = list(data['temp'][1:])
-    if not df[9].isna().all():
-        df[9] = list(data['temp'][1:])
+    #Fix pressure units:
+    # Check if df[9] is at least one order of magnitude (10x) higher than data['pres']
+    if data['pres'].mean() != 0 and df[9].mean() >= 10 * data['pres'].mean():
+        data['pres'] = data['pres'] * 100
 
-    return df
+    # Initialize flags for columns 6, 7, and 8.
+    flags = {6: False, 7: False, 8: False}
+
+    for df_col, data_key in columns_to_process.items():
+        # Get the new values from data
+        new_values = data[data_key]
+       
+        # Adjust the length of new_values to match df.
+        if len(new_values) != len(df):
+            if len(new_values) < len(df):
+                # Reindex to the df index (or range) so missing timesteps become NaN.
+                new_values = new_values.reindex(range(len(df)))
+                # print(f"Data for key '{data_key}' was shorter than df; missing timesteps filled with NaN.")
+            else:
+                raise ValueError(f"There is something wrong in column {df_col} of MERRA2 data. Stopping execution.")
+
+
+
+        # If processing one of the flagged columns, check for any holes (NaN values)
+        if df_col in flags:
+            # If any timestep in new_values is NaN, mark the flag as True.
+            if new_values.isna().any():
+                flags[df_col] = True
+
+      
+        # Replace values in df: where new_values is NaN, retain the original value.
+        df[df_col] = new_values.where(new_values.notna(), df[df_col])
+
+    # Return both the modified DataFrame and the flags dictionary.
+    return df, flags
 
 def check_missing_hours(year, df):
-    # Generate a complete set of hourly timestamps for the entire year
-    full_index = pd.date_range(start=f"{year}-01-01 00:00:00", end=f"{year+1}-01-01 00:00:00", freq="h")
-    # Find the missing hours by comparing the complete set with the dataframe's index
+    """
+    Checks for missing hours in the DataFrame's datetime index for a specified year.
+    """
+    full_index = pd.date_range(start=f"{year}-01-01", end=f"{year+1}-01-01", freq="H")
     missing_hours = full_index.difference(df.index)
-    # Calculate the number of missing hours
     missing_hours_num = len(missing_hours)
-    # Find the size of the largest group of consecutive missing hours
+
     if missing_hours_num > 0:
-        # Calculate the difference between consecutive missing hours
         diffs = missing_hours.to_series().diff().dt.total_seconds().div(3600)
-        # Identify the groups where the difference between consecutive hours is 1 (consecutive hours)
-        consecutive_groups = (diffs != 1).cumsum()
-        # Find the size of the largest group of consecutive missing hours
-        largest_consecutive_group = consecutive_groups.value_counts().max()
+        largest_consecutive_group = (diffs != 1).cumsum().value_counts().max()
     else:
         largest_consecutive_group = 0
+
     return missing_hours_num, largest_consecutive_group
 
-def get_noaa_merra2_data(lat, lon, year,file_type):
-    missing_dates = False
-    # The time zone used by Meteostat is Coordinated Universal Time (UTC).
-    data_noaa, tz, distance, elevation, wmo, station_name, state, country = get_data_noaa(lat, lon, year)
-    #If Meteostat returns not a WMO, check the correspondoing WMO from NOAA
+def add_datetime_index(df_merra2):
+    # Rename columns 0-4 to the appropriate datetime names
+    df_merra2_datetime = df_merra2[[0, 1, 2, 3, 4]].rename(
+        columns={0: 'year', 1: 'month', 2: 'day', 3: 'hour', 4: 'minute'}
+    )
+
+    # Create the datetime index and assign it to the DataFrame
+    df_merra2.index = pd.to_datetime(df_merra2_datetime)
+
+    return df_merra2
+
+def get_noaa_merra2_data(lat, lon, year, file_type, save_folder):
+    """
+    Retrieves NOAA and MERRA2 data for a specific location and year.
+    """
+    retrieve_status = True
+    data_noaa, tz, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists, incomplete_timeseries = get_data_noaa(lat, lon, year, save_folder)
+    # data_noaa, tz, distance, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists, incomplete_timeseries = get_data_noaa(lat, lon, year, save_folder)
+    if epw_exists:
+        df_merged = ''
+        retrieve_status = False
+        # distance = ''
+        hdd = ''
+        cdd = ''
+        latitude_station = ''
+        longitude_station = ''
+        info_dict = ''
+        epw_exists = True
+        flags = ''
+        # return df_merged, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists
+        return df_merged, retrieve_status, info_dict, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists, flags
+    elif incomplete_timeseries:
+        df_merged = ''
+        retrieve_status = False
+        # distance = np.nan
+        hdd = ''
+        cdd = ''
+        latitude_station = ''
+        longitude_station = ''
+        info_dict = '' 
+        wmo = ''
+        epw_exists = False
+        flags = ''
+        # return df_merged, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists
+        return df_merged, retrieve_status, info_dict, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists, flags
+
     try:
-        wmo = str(int(wmo))
-    except ValueError:
-        wmo = get_wmo_from_icao_NOAA(wmo)
-        
-    # Create the dictionary
+        data_noaa_tz_adj = filter_dataframe_by_date(convert_utc_to_local(data_noaa, tz), datetime(year, 1, 1), datetime(year+1, 1, 1))
+    except AttributeError:
+        # print("We don't have NOAA data for this location/year")
+        df_merged = ''
+        retrieve_status = False
+        # distance = np.nan
+        hdd = ''
+        cdd = ''
+        latitude_station = ''
+        longitude_station = ''
+        info_dict = '' 
+        epw_exists = False
+        # return df_merged, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists
+        return df_merged, retrieve_status, info_dict, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists
+
     info_dict = {
-        'timeshift': get_time_shift(tz),
-        'elevation': elevation,
-        'wmo': wmo,
-        'station_name': station_name,
-        'state': state,
-        'country': country,
-        'lat': lat,
-        'lon': lon,
-        'weather_file_type': file_type
-        }
+    'timeshift': get_time_shift(tz),
+    'elevation': elevation,
+    'wmo': wmo,
+    'station_name': station_name,
+    'state': state,
+    'country': country,
+    'lat': latitude_station,
+    'lon': longitude_station,
+    'weather_file_type': file_type
+    }
 
-    # Adjust timezone and cut from 1/1 to 12/31
-    data_noaa_tz_adj = filter_dataframe_by_date(convert_utc_to_local(data_noaa, tz ), datetime(year, 1, 1), datetime(year+1, 1, 1))
-    #Check if there are missing hours:
-    missing_hours_num, largest_consecutive_group = check_missing_hours(year, data_noaa_tz_adj)
-    if largest_consecutive_group>3:
-        missing_dates = True
-        df_merged = []
+    data_noaa_tz_adj_h = data_noaa_tz_adj.resample('H').mean()
+    data_noaa_tz_adj_h_interpolated = data_noaa_tz_adj_h.interpolate(method='linear', limit=3, limit_direction='both')
+    hdd, cdd = calculate_hdd_cdd(data_noaa_tz_adj_h_interpolated, 'temp')
+    try:
+        df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
+    except EmptyDataError:
+        try:
+            df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
+        except EmptyDataError:
+            try:
+                df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
+            except EmptyDataError:
+                try:
+                    df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
+                except EmptyDataError:
+                    df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
+
+
+    # add datetime index to MERRA2
+    df_merra2 = add_datetime_index(df_merra2)
+    
+
+    #Remove the first row to align with MERRA2:
+    # data_noaa_tz_adj_h_interpolated = data_noaa_tz_adj_h_interpolated[data_noaa_tz_adj_h_interpolated.index.year == year]
+    data_noaa_tz_adj_h_interpolated = data_noaa_tz_adj_h_interpolated.iloc[1:]
+
+    #Merge the 2 datasets
+    [df_merged, flags] = merge_data(df_merra2, data_noaa_tz_adj_h_interpolated)
+
+    # Check for empty cells in df_merged
+    if df_merged.isnull().any().any():
+        raise ValueError("The merged DataFrame (df_merged) contains empty cells. Stopping execution.")
+
+
+    # return df_merged, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists
+    return df_merged, retrieve_status, info_dict, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists, flags
+
+def run_individual_location(lat, lon, year, file_type, save_folder, save_name):
+    """
+    Processes a single location, fetching data and handling errors.
+    """
+    # data_meteostat_merra2, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists = get_noaa_merra2_data(lat, lon, year, file_type, save_folder)
+    data_meteostat_merra2, retrieve_status, info_dict, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists, flags = get_noaa_merra2_data(lat, lon, year, file_type, save_folder)
+    
+    if epw_exists:
+        retrieve_status = False
+        # distance = ''
+        hdd = ''
+        cdd = ''
+        latitude_station = ''
+        longitude_station = ''
+        retrieve_info_closest_other_locations = True
+    elif retrieve_status:
+        retrieve_info_closest_other_locations = False
+        #Save the EPW file
+        if save_name != None:
+            output_path = os.path.join(save_folder, f"{save_name.replace(' ', '_').replace('.', '_')}_{year}.epw")
+        else:
+            output_path = os.path.join(save_folder, f"{wmo}_{year}.epw")
+        data_meteostat_merra2.to_csv(output_path, header=False, index=False)
+        with open(output_path, 'r') as original_file:
+            data_content = original_file.read()
+        header_lines = create_header(data_meteostat_merra2, year, info_dict)
+        with open(output_path, 'w') as new_file:
+            new_file.write("\n".join(header_lines) + "\n" + data_content)
     else:
-        # Resample the dataframe to hourly frequency
-        data_noaa_tz_adj_h = data_noaa_tz_adj.resample('h').mean()
-        # Linearly interpolate missing values, limiting to 3 consecutive missing hours
-        data_noaa_tz_adj_h_interpolated = data_noaa_tz_adj_h.interpolate(method='linear', limit=3, limit_direction='forward')
+        retrieve_info_closest_other_locations = False
+        retrieve_status = False
+        print('No data available for this location/year.')
 
-        #get data MERRA2
-        df_merra2, header_merra2 = get_parameters_MERRA2(lat, lon, year)
-        #Merge two datasets
-        df_merged = merge_data(df_merra2, data_noaa_tz_adj_h_interpolated)
-    return df_merged, missing_dates, info_dict
+    # return retrieve_status, distance, wmo, hdd, cdd, latitude_station, longitude_station, retrieve_info_closest_other_locations
+    return retrieve_status, wmo, hdd, cdd, latitude_station, longitude_station, retrieve_info_closest_other_locations, flags
+
+def get_time_shift(timezone_name):
+    """
+    Calculates the time shift for a given timezone from UTC.
+    """
+    timezone = pytz.timezone(timezone_name)
+    now = datetime.now(timezone)
+    utc_offset = now.utcoffset()
+    return int(utc_offset.total_seconds() // 3600)  # Return hours offset only
+
+def calculate_hdd_cdd(df, temperature_column):
+    """
+    Calculate Heating Degree Days (HDD) and Cooling Degree Days (CDD) from hourly temperature data in Celsius.
+    """
+    df[temperature_column + '_F'] = df[temperature_column] * 9 / 5 + 32
+    base_temperature = 65
+
+    df['date'] = df.index.to_series().dt.date
+    daily_mean_temp = df.groupby('date')[temperature_column + '_F'].mean().reset_index()
+    daily_mean_temp.columns = ['date', 'mean_temp']
+
+    daily_mean_temp['HDD'] = (base_temperature - daily_mean_temp['mean_temp']).clip(lower=0)
+    daily_mean_temp['CDD'] = (daily_mean_temp['mean_temp'] - base_temperature).clip(lower=0)
+
+    total_hdd = daily_mean_temp['HDD'].sum()
+    total_cdd = daily_mean_temp['CDD'].sum()
+
+    return int(total_hdd), int(total_cdd)
+
+def check_epw_exists(save_folder, year, wmo):
+    return os.path.exists(f'{save_folder}/{wmo}_{year}.epw')
+
+def calc_combined_ground_temperatures(df):
+    """
+    Calculate shallow ground temperatures for multiple depths using the Kusuda and Achenbach model
+    and format results as a single EPW GROUND TEMPERATURES line.
+    This is the adapted version of the method used in ResStock:
+    https://github.com/NREL/OpenStudio-HPXML/blob/master/HPXMLtoOpenStudio/resources/weather.rb#L315-L346
+
+    Parameters:
+        df (pd.DataFrame): DataFrame with hourly temperatures in column 6.
+
+    Returns:
+        str: Combined GROUND TEMPERATURES line in EPW file format for all depths.
+    """
+    depths = [0.5, 2, 4]  # Depths to consider (in meters)
+
+    # Conversion utility
+    def convert(value, from_unit, to_unit):
+        if from_unit == "yr" and to_unit == "hr":
+            return value * 365.25 * 24  # 1 year = 365.25 days * 24 hours
+        elif from_unit == "C" and to_unit == "R":
+            return (value + 273.15) * 9 / 5  # Celsius to Rankine
+        elif from_unit == "R" and to_unit == "C":
+            return (value - 491.67) * 5 / 9  # Rankine to Celsius
+        elif from_unit == "C" and to_unit == "F":
+            return value * 9 / 5 + 32  # Celsius to Fahrenheit
+        elif from_unit == "F" and to_unit == "C":
+            return (value - 32) * 5 / 9  # Fahrenheit to Celsius
+        elif from_unit == "R" and to_unit == "F":
+            return value - 459.67  # Rankine to Fahrenheit
+        else:
+            raise ValueError(f"Unsupported conversion from {from_unit} to {to_unit}")
+
+    # Ensure proper datetime index
+    df.index = pd.to_datetime({
+        'year': df[0],
+        'month': df[1],
+        'day': df[2],
+        'hour': df[3]
+    })
+
+    # Constants
+    amon = [15.0, 46.0, 74.0, 95.0, 135.0, 166.0, 196.0, 227.0, 258.0, 288.0, 319.0, 349.0]  # Approx. mid-month days
+    po = 0.6  # Phase offset
+    dif = 0.025  # Thermal diffusivity (m²/hr)
+    p = convert(1.0, 'yr', 'hr')  # Convert 1 year to hours
+
+    # Use column 6 for temperatures
+    df.rename(columns={6: 'Dry Bulb Temperature (°C)'}, inplace=True)
+
+    # Calculate monthly and annual averages in Celsius
+    monthly_avg_drybulbs_c = df.groupby(df.index.month)['Dry Bulb Temperature (°C)'].mean()
+    annual_avg_drybulb_c = df['Dry Bulb Temperature (°C)'].mean()
+
+    # Convert average temperatures to Rankine for decay calculations
+    monthly_avg_drybulbs_r = monthly_avg_drybulbs_c.apply(lambda x: convert(x, 'C', 'R'))
+    annual_avg_drybulb_r = convert(annual_avg_drybulb_c, 'C', 'R')
+
+    # Prepare the combined GROUND TEMPERATURES line
+    combined_ground_temperatures = ["GROUND TEMPERATURES", str(len(depths))]  # Start with header and number of depths
+
+    for depth in depths:
+        # Kusuda and Achenbach parameters
+        beta = math.sqrt(math.pi / (p * dif)) * 10.0
+        x = math.exp(-beta)
+        s = math.sin(beta)
+        c = math.cos(beta)
+        y = (x**2 - 2.0 * x * c + 1.0) / (2.0 * beta**2.0)
+        depth_factor = math.exp(-depth * math.sqrt(math.pi / (p * dif)))
+
+        gm = math.sqrt(y) * depth_factor
+        z = (1.0 - x * (c + s)) / (1.0 - x * (c - s))
+        phi = math.atan(z)
+        bo = (monthly_avg_drybulbs_r.max() - monthly_avg_drybulbs_r.min()) * 0.5
+
+        # Calculate shallow ground temperatures
+        shallow_ground_monthly_temps_r = []
+        for i in range(12):  # Loop through 12 months
+            theta = amon[i] * 24.0  # Day of the year to hours
+            temp = annual_avg_drybulb_r - bo * math.cos(2.0 * math.pi / p * theta - po - phi) * gm
+            shallow_ground_monthly_temps_r.append(temp)
+
+        # Convert results to Celsius
+        shallow_ground_monthly_temps_c = [convert(temp, 'R', 'C') for temp in shallow_ground_monthly_temps_r]
+
+        # Add the depth, empty spaces, and monthly temperatures to the combined line
+        combined_ground_temperatures.append(f"{depth:.1f}")
+        combined_ground_temperatures.extend([""] * 3)  # Add three empty spaces
+        combined_ground_temperatures.extend([f"{temp:.2f}" for temp in shallow_ground_monthly_temps_c])
+
+    # Return the formatted line as a single string
+    return ",".join(combined_ground_temperatures)
+
+def create_header(df, year, info_dict):
+    header_lines = []
+
+    #Calculated parameters 
+    first_day_year = pd.to_datetime(date.min.replace(year=year)).day_name()
+    leap_status = lambda year: 'Yes' if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0) else 'No'
+    dst_start, dst_end = get_dst_start_end(year, info_dict['lat'], info_dict['lon'])
+    design_conditions_file = 'resources/design_conditions.csv'
+    design_conditions_line = find_closest_design_condition(float(info_dict['lat']), float(info_dict['lon']), design_conditions_file)
+    ground_temp_line = calc_combined_ground_temperatures(df)
+    #Hardcoded parameters
+    number_of_holidays = 0
+    number_of_data_periods = 1
+    number_of_records_per_hour = 1
+
+    # line_1
+    header_lines.append(f"LOCATION,{info_dict['station_name']},{info_dict['state']},{info_dict['country']},{info_dict['weather_file_type']},{info_dict['wmo']},{info_dict['lat']},{info_dict['lon']},{info_dict['timeshift']},{info_dict['elevation']}")
+    # line_2
+    header_lines.append(design_conditions_line)
+    # line_3
+    header_lines.append(f"TYPICAL/EXTREME PERIODS,0")
+    # line_4
+    header_lines.append(ground_temp_line)
+    # header_lines.append(f"GROUND TEMPERATURES,0")
+    # header_lines.append(f"GROUND TEMPERATURES,3,.5,,,,-16.34,-17.80,-15.22,-11.16,-0.57,7.61,13.13,14.81,11.95,5.60,-2.89,-10.76,2,,,,-10.97,-13.57,-13.04,-10.89,-3.80,2.61,7.74,10.49,9.90,6.30,0.46,-5.74,4,,,,-6.53,-9.19,-9.78,-8.97,-4.96,-0.64,3.32,6.08,6.72,5.16,1.73,-2.4")
+    # line_5
+    try:
+        header_lines.append(f"HOLIDAYS/DAYLIGHT SAVINGS,{leap_status(year)},{dst_start.month}/{dst_start.day},{dst_end.month}/{dst_end.day},{number_of_holidays}")
+    except AttributeError:
+        #We cannot retrieve DST dates, let's set them to 0
+        header_lines.append(f"HOLIDAYS/DAYLIGHT SAVINGS,{leap_status(year)},0,0,{number_of_holidays}")
+    # line_6
+    header_lines.append(f"COMMENTS 1, ")
+    # line_7
+    header_lines.append(f"COMMENTS 2, ")
+    # line_8
+    header_lines.append(f"DATA PERIODS,{number_of_data_periods},{number_of_records_per_hour},Data,{first_day_year},{df.iloc[0, 1]}/{df.iloc[0, 2]},{df.iloc[-1, 1]}/{df.iloc[-1, 2]}")
+
+    return header_lines
+
+def fix_wmo(wmo):
+    """
+    Attempts to fix or standardize the WMO code format.
+    """
+    try:
+        return str(int(wmo))
+    except ValueError:
+        icao = wmo
+        icao_converted = get_wmo_from_icao_NOAA(icao)
+        if isinstance(icao_converted, type(None)):
+            return icao
+        else:
+            return icao_converted
+
+    # return wmo
+
+def get_data_noaa(lat, lon, year, save_folder):
+    """
+    Fetches NOAA data for a given location and year, handling timezones and missing data.
+    """
+    # Disable SSL verification
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+    start = datetime(year - 1, 12, 31)
+    end = datetime(year + 1, 1, 2)
+
+    stations = Stations().nearby(lat, lon)
+
+    epw_exists = False
+    station_number = 0
+    len_data = 0
+
+    incomplete_timeseries = True
+    while incomplete_timeseries:
+        station_number += 1
+        wmo = fix_wmo(str(stations.fetch(station_number).index.values[-1]))
+        # First check if EPW already exists
+        if check_epw_exists(save_folder, year, wmo):
+            epw_exists = True
+            incomplete_timeseries = False
+            break
+        data = Hourly(stations.fetch(station_number), start, end, model=True).fetch()
+        if (len(data.index) >100) & (station_number>1):
+            data = data.loc[data.index.get_level_values('station').unique()[-1]]
+
+        len_data = len(data.index)
+        missing_hours_num, largest_consecutive_group = check_missing_hours(year, data)
+        if (len_data > 8000) & (largest_consecutive_group <= 3):
+            incomplete_timeseries = False
+
+    if epw_exists | incomplete_timeseries:
+        data = ''
+        timezone = ''
+        # distance = ''
+        elevation = ''
+        station_name = ''
+        state = ''
+        country = ''
+        latitude_station = ''
+        longitude_station = ''
+                
+    else:
+        station_info = stations.fetch(station_number)
+        timezone = station_info['timezone'].values[-1]
+        elevation = station_info['elevation'].values[-1]
+        # distance = stations.fetch()['distance'].values[-1]
+        wmo = fix_wmo(str(station_info.index.values[-1]))
+        station_name = (station_info['name'].values[-1]).replace(',', '_')
+        state = station_info['region'].values[-1]
+        country = station_info['country'].values[-1]
+        latitude_station = station_info['latitude'].values[-1]
+        longitude_station = station_info['longitude'].values[-1]
+
+    # return data, timezone, distance, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists,incomplete_timeseries
+    return data, timezone, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists,incomplete_timeseries
+
+def update_if_missing(df, index, col_name, new_value):
+    if col_name not in df.columns:
+        df[col_name] = np.nan
+    if pd.isna(df.at[index, col_name]) or not df.at[index, col_name]:
+        df.at[index, col_name] = new_value
+
+def retrieve_info_other_location(wmo, zipcodes, year):
+
+    flags = {6: '', 7: '', 8: ''}
+
+    retrieve_status = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"EPW_file_name_{year}"].values[0]
+    # distance = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"distance_location_station_miles_{year}"].values[0]
+    hdd = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"hdd_base65F_{year}"].values[0]
+    cdd = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"cdd_base65F_{year}"].values[0]
+
+    flags[6] = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"Tdb_holes_{year}"].values[0]
+    flags[7] = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"Tdew_holes_{year}"].values[0]
+    flags[8] = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"RH_holes_{year}"].values[0]
+    # return retrieve_status, distance, hdd, cdd
+    return retrieve_status, hdd, cdd, flags
+
+def get_wmo_from_icao_NOAA(icao_code):
+    # Path to the local CSV file in the resource folder
+    csv_file_path = os.path.join(os.path.join(os.getcwd(), 'resources'), 'isd-history.csv')
+
+    # Read the CSV file
+    try:
+        with open(csv_file_path, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+            headers = lines[0].split(',')
+            icao_index = headers.index('"ICAO"')
+            wmo_index = headers.index('"USAF"')
+
+            for line in lines[1:]:
+                fields = line.split(',')
+                if fields[icao_index].strip('"') == icao_code.upper():
+                    return fields[wmo_index].strip('"')
+
+    except FileNotFoundError:
+        print(f"CSV file not found at path: {csv_file_path}")
+        return None
+    except Exception as e:
+        # print(f"An error occurred: {e}")
+        return None
 
 def get_dst_start_end(year, latitude, longitude):
     # Get the timezone for the given latitude and longitude
@@ -236,7 +601,22 @@ def get_dst_start_end(year, latitude, longitude):
     
     return dst_start, dst_end
 
-def find_closest_design_condition(lat, lon,design_conditions_file):
+# Function to calculate the distance between two points given their latitudes and longitudes
+def haversine_distance(lat1, lon1, lat2, lon2):
+    # Convert latitude and longitude from degrees to radians
+    lat1, lon1, lat2, lon2 = map(np.radians, [lat1, lon1, lat2, lon2])
+    
+    # Haversine formula
+    dlat = lat2 - lat1 
+    dlon = lon2 - lon1 
+    a = np.sin(dlat/2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2)**2
+    c = 2 * np.arcsin(np.sqrt(a)) 
+    r = 6371  # Radius of Earth in kilometers. Use 3956 for miles. Determines return value units.
+
+    #Distance returned in km
+    return c * r
+
+def find_closest_design_condition(lat,lon,design_conditions_file):
     """
     Finds the closest design condition from the CSV file based on the given latitude and longitude.
 
@@ -248,20 +628,6 @@ def find_closest_design_condition(lat, lon,design_conditions_file):
     Returns:
     str: The 2021 design condition string for the closest location.
     """
-
-    # Function to calculate the distance between two points given their latitudes and longitudes
-    def haversine_distance(lat1, lon1, lat2, lon2):
-        # Convert latitude and longitude from degrees to radians
-        lat1, lon1, lat2, lon2 = map(np.radians, [lat1, lon1, lat2, lon2])
-        
-        # Haversine formula
-        dlat = lat2 - lat1 
-        dlon = lon2 - lon1 
-        a = np.sin(dlat/2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2)**2
-        c = 2 * np.arcsin(np.sqrt(a)) 
-        r = 6371  # Radius of Earth in kilometers. Use 3956 for miles. Determines return value units.
-        return c * r
-
     
     # Read the CSV file
     df = pd.read_csv(design_conditions_file)
@@ -275,76 +641,11 @@ def find_closest_design_condition(lat, lon,design_conditions_file):
     # Return the design conditions for 2021
     return closest_row['2021_design_conditions']
 
-def create_header(df, year, info_dict):
-    header_lines = []
-
-    #Calculated parameters 
-    first_day_year = pd.to_datetime(date.min.replace(year=year)).day_name()
-    leap_status = lambda year: 'Yes' if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0) else 'No'
-    dst_start, dst_end = get_dst_start_end(year, lat, lon)
-    design_conditions_file = 'resources/design_conditions.csv'
-    design_conditions_line = find_closest_design_condition(float(info_dict['lat']), float(info_dict['lon']), design_conditions_file)
-    #Hardcoded parameters
-    number_of_holidays = 0
-    number_of_data_periods = 1
-    number_of_records_per_hour = 1
-
-    # line_1
-    header_lines.append(f"LOCATION,{info_dict['station_name']},{info_dict['state']},{info_dict['country']},{info_dict['weather_file_type']},{info_dict['wmo']},{info_dict['lat']},{info_dict['lon']},{info_dict['timeshift']},{info_dict['elevation']}")
-    # line_2
-    header_lines.append(info_dict['design_conditions'])
-    # line_3
-    header_lines.append(f"TYPICAL/EXTREME PERIODS,6,Summer - Week Nearest Max Temperature For Period,Extreme,7/20,7/26,Summer - Week Nearest Average Temperature For Period,Typical,6/22,6/28,Winter - Week Nearest Min Temperature For Period,Extreme,12/ 1,12/ 7,Winter - Week Nearest Average Temperature For Period,Typical,1/27,2/ 2,Autumn - Week Nearest Average Temperature For Period,Typical,10/13,10/19,Spring - Week Nearest Average Temperature For Period,Typical,4/12,4/18")
-    # line_4
-    header_lines.append(f"GROUND TEMPERATURES,3,.5,,,,-16.34,-17.80,-15.22,-11.16,-0.57,7.61,13.13,14.81,11.95,5.60,-2.89,-10.76,2,,,,-10.97,-13.57,-13.04,-10.89,-3.80,2.61,7.74,10.49,9.90,6.30,0.46,-5.74,4,,,,-6.53,-9.19,-9.78,-8.97,-4.96,-0.64,3.32,6.08,6.72,5.16,1.73,-2.4")
-    # line_5
-    header_lines.append(f"HOLIDAYS/DAYLIGHT SAVINGS,{leap_status(year)},{dst_start.month}/{dst_start.day},{dst_end.month}/{dst_end.day},{number_of_holidays}")
-    # line_6
-    header_lines.append(f"COMMENTS 1, ")
-    # line_7
-    header_lines.append(f"COMMENTS 2, ")
-    # line_8
-    header_lines.append(f"DATA PERIODS,{number_of_data_periods},{number_of_records_per_hour},Data,{first_day_year},{df.iloc[0, 1]}/{df.iloc[0, 2]},{df.iloc[-1, 1]}/{df.iloc[-1, 2]}")
-
-    return header_lines
-
-def get_wmo_from_icao_NOAA(icao_code):
-    # URL to the NOAA ISD database metadata
-    url = "https://www.ncei.noaa.gov/pub/data/noaa/isd-history.csv"
-    
-    # Fetch the data
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        # Read the CSV data
-        csv_data = response.content.decode('utf-8')
-        
-        # Parse the CSV data
-        lines = csv_data.splitlines()
-        headers = lines[0].split(',')
-        icao_index = headers.index('"ICAO"')
-        wmo_index = headers.index('"USAF"')
-
-        for line in lines[1:]:
-            fields = line.split(',')
-            if fields[icao_index].strip('"') == icao_code.upper():
-                return fields[wmo_index].strip('"')
-    else:
-        print(f"Failed to retrieve data, status code: {response.status_code}")
-        return None
-
-def get_time_shift(timezone_name):
-    # Get the timezone object
-    timezone = pytz.timezone(timezone_name)
-    # Get the current time in that timezone
-    now = datetime.now(timezone)
-    # Retrieve the UTC offset
-    utc_offset = now.utcoffset()
-    # Convert the offset to hours and minutes
-    total_minutes = utc_offset.total_seconds() / 60
-    hours = int(total_minutes // 60)
-    minutes = int(total_minutes % 60)
-    
-    return hours
-
+def retrieve_distance_station_location(wmo, lat_location, lon_location):
+    meteostat_stations = pd.read_csv('resources/meteostat_stats.csv', index_col='id')
+    lat_station = meteostat_stations[meteostat_stations.index == wmo]['latitude'].values[0]
+    lon_station = meteostat_stations[meteostat_stations.index == wmo]['longitude'].values[0]
+    distance_km = haversine_distance(lat_location, lon_location, lat_station, lon_station)
+    distance_mi = distance_km*0.621371
+    return distance_mi, lat_station, lon_station
 

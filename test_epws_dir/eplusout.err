@@ -1,11 +1,11 @@
-Program Version,EnergyPlus, Version 23.2.0-7636e6b3e9, YMD=2025.02.20 10:31,
+Program Version,EnergyPlus, Version 23.2.0-7636e6b3e9, YMD=2025.02.21 14:28,
    ** Warning ** Version: in IDF="24.2" not the same as expected="23.2"
    ** Warning ** Version: in IDF="24.2" not the same as expected="23.2"
    ** Warning ** Weather file location will be used rather than entered (IDF) Location object.
    **   ~~~   ** ..Location object=CHICAGO_OHARE_INTL_AP_IL_USA_TMY3_725300
-   **   ~~~   ** ..Weather File Location=New Orleans LA US AMY WMO#=KVSH0
-   **   ~~~   ** ..due to location differences, Latitude difference=[12.03] degrees, Longitude difference=[2.16] degrees.
-   **   ~~~   ** ..Time Zone difference=[0.0] hour(s), Elevation difference=[95.52] percent, [192.00] meters.
+   **   ~~~   ** ..Weather File Location=Hermiston Municipal Airport OR US AMY WMO#=KHRI0
+   **   ~~~   ** ..due to location differences, Latitude difference=[3.85] degrees, Longitude difference=[31.34] degrees.
+   **   ~~~   ** ..Time Zone difference=[2.0] hour(s), Elevation difference=[2.49] percent, [5.00] meters.
    ************* Testing Individual Branch Integrity
    ************* All Branches passed integrity testing
    ************* Testing Individual Supply Air Path Integrity
@@ -17,4 +17,4 @@ Program Version,EnergyPlus, Version 23.2.0-7636e6b3e9, YMD=2025.02.20 10:31,
    ************* Simulation Error Summary *************
    ************* EnergyPlus Warmup Error Summary. During Warmup: 0 Warning; 0 Severe Errors.
    ************* EnergyPlus Sizing Error Summary. During Sizing: 0 Warning; 0 Severe Errors.
-   ************* EnergyPlus Completed Successfully-- 3 Warning; 0 Severe Errors; Elapsed Time=00hr 00min  0.15sec
+   ************* EnergyPlus Completed Successfully-- 3 Warning; 0 Severe Errors; Elapsed Time=00hr 00min  0.20sec

@@ -5,11 +5,11 @@ OS:Version,
 
 OS:Site,
   {20c387d2-9190-4ba2-9f2d-ddb0985e9716}, !- Handle
-  Denver / Stapleton International Co.,   !- Name
-  39.7833,                                !- Latitude {deg}
-  -104.8667,                              !- Longitude {deg}
-  -7,                                     !- Time Zone {hr}
-  1626,                                   !- Elevation {m}
+  Kingsville,                             !- Name
+  27.5045,                                !- Latitude {deg}
+  -97.8083,                               !- Longitude {deg}
+  -6,                                     !- Time Zone {hr}
+  15,                                     !- Elevation {m}
   Urban;                                  !- Terrain
 
 OS:YearDescription,
@@ -7544,17 +7544,17 @@ OS:Output:Variable,
 
 OS:WeatherFile,
   {9aa5d1e1-3855-46c3-adce-ad085cba1e7a}, !- Handle
-  Denver / Stapleton International Co.,   !- City
-  CO,                                     !- State Province Region
+  Kingsville,                             !- City
+  TX,                                     !- State Province Region
   US,                                     !- Country
   AMY,                                    !- Data Source
-  72469,                                  !- WMO Number
-  39.7833,                                !- Latitude {deg}
-  -104.8667,                              !- Longitude {deg}
-  -7,                                     !- Time Zone {hr}
-  1626,                                   !- Elevation {m}
-  72469_2023.epw,                         !- Url
-  9E47D778,                               !- Checksum
+  KNQI0,                                  !- WMO Number
+  27.5045,                                !- Latitude {deg}
+  -97.8083,                               !- Longitude {deg}
+  -6,                                     !- Time Zone {hr}
+  15,                                     !- Elevation {m}
+  KNQI0_2023.epw,                         !- Url
+  F14141AF,                               !- Checksum
   2023,                                   !- Start Date Actual Year
   Sunday;                                 !- Start Day of Week
 

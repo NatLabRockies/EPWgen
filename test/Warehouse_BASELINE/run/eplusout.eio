@@ -1,4 +1,4 @@
-Program Version,EnergyPlus, Version 24.1.0-9d7789a3ac, YMD=2025.02.19 17:33
+Program Version,EnergyPlus, Version 24.1.0-9d7789a3ac, YMD=2025.02.20 13:01
 ! <Version>, Version ID
  Version, 24.1
 ! <Timesteps per Hour>, #TimeSteps, Minutes per TimeStep {minutes}
@@ -14,7 +14,7 @@ Program Version,EnergyPlus, Version 24.1.0-9d7789a3ac, YMD=2025.02.19 17:33
 ! <Site:GroundTemperature:BuildingSurface>,Jan{C},Feb{C},Mar{C},Apr{C},May{C},Jun{C},Jul{C},Aug{C},Sep{C},Oct{C},Nov{C},Dec{C}
  Site:GroundTemperature:BuildingSurface,  19.53,  19.50,  19.54,  19.60,  20.00,  21.64,  22.23,  22.38,  21.45,  20.12,  19.80,  19.63
 ! <Site:GroundTemperature:FCfactorMethod>,Jan{C},Feb{C},Mar{C},Apr{C},May{C},Jun{C},Jul{C},Aug{C},Sep{C},Oct{C},Nov{C},Dec{C}
- Site:GroundTemperature:FCfactorMethod,   5.85,   3.95,   3.79,   4.69,   8.31,  11.92,  15.04,  17.03,  17.21,  15.61,  12.57,   9.08
+ Site:GroundTemperature:FCfactorMethod,  21.66,  20.61,  20.53,  21.02,  23.03,  25.02,  26.76,  27.86,  27.95,  27.07,  25.39,  23.45
 ! <Site:GroundTemperature:Shallow>,Jan{C},Feb{C},Mar{C},Apr{C},May{C},Jun{C},Jul{C},Aug{C},Sep{C},Oct{C},Nov{C},Dec{C}
  Site:GroundTemperature:Shallow,  13.00,  13.00,  13.00,  13.00,  13.00,  13.00,  13.00,  13.00,  13.00,  13.00,  13.00,  13.00
 ! <Site:GroundTemperature:Deep>,Jan{C},Feb{C},Mar{C},Apr{C},May{C},Jun{C},Jul{C},Aug{C},Sep{C},Oct{C},Nov{C},Dec{C}
@@ -30,7 +30,7 @@ Program Version,EnergyPlus, Version 24.1.0-9d7789a3ac, YMD=2025.02.19 17:33
 ! <Environment:Weather Station>,Wind Sensor Height Above Ground {m},Wind Speed Profile Exponent {},Wind Speed Profile Boundary Layer Thickness {m},Air Temperature Sensor Height Above Ground {m},Wind Speed Modifier Coefficient-Internal,Temperature Modifier Coefficient-Internal
 Environment:Weather Station,10.000,0.140,270.000,1.500,1.586,9.750E-003
 ! <Site:Location>, Location Name, Latitude {N+/S- Deg}, Longitude {E+/W- Deg},  Time Zone Number {GMT+/-}, Elevation {m},  Standard Pressure at Elevation {Pa}, Standard RhoAir at Elevation
-Site:Location,Denver / Stapleton International Co. CO US AMY WMO#=72469,39.78,-104.87,-7.00,1626.00,83257,0.9896
+Site:Location,Kingsville TX US AMY WMO#=KNQI0,27.50,-97.81,-6.00,15.00,101145,1.2022
 ! <Site Water Mains Temperature Information>,Calculation Method{},Water Mains Temperature Schedule Name{},Annual Average Outdoor Air Temperature{C},Maximum Difference In Monthly Average Outdoor Air Temperatures{deltaC},Fixed Default Water Mains Temperature{C}
 Site Water Mains Temperature Information,FixedDefault,NA,NA,NA,10.0
 ! <Building Information>, Building Name,North Axis {deg},Terrain,  Loads Convergence Tolerance Value,Temperature Convergence Tolerance Value,  Solar Distribution,Maximum Number of Warmup Days,Minimum Number of Warmup Days
@@ -108,120 +108,120 @@ Zone Volume Capacitance Multiplier,   1.000 ,   1.000,   1.000,   1.000
  Cooling Sizing Factor Information, Zone THERMAL ZONE 2,   1.1500    
  Cooling Sizing Factor Information, Zone THERMAL ZONE 3,   1.1500    
 ! <Zone Sizing Information>, Zone Name, Load Type, Calc Des Load {W}, User Des Load {W}, Calc Des Air Flow Rate {m3/s}, User Des Air Flow Rate {m3/s}, Design Day Name, Date/Time of Peak, Temperature at Peak {C}, Humidity Ratio at Peak {kgWater/kgDryAir}, Floor Area {m2}, # Occupants, Calc Outdoor Air Flow Rate {m3/s}, Calc DOAS Heat Addition Rate {W}
- Zone Sizing Information, THERMAL ZONE 1, Cooling, 2321938.96108, 2670229.80525, 206.73860, 237.74939, ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB, 6/21 13:00:00, 33.46500, 2.55611E-002, 80028.36000, 77.00000, 24.39264, 0.00000
- Zone Sizing Information, THERMAL ZONE 1, Heating, 4048123.91528, 5060154.89411, 136.76715, 170.95894, ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB, 1/21 09:00:00, -10.20000, 1.91331E-003, 80028.36000, 77.00000, 24.39264, 0.00000
- Zone Sizing Information, THERMAL ZONE 2, Cooling, 1681140.25681, 1933311.29533, 149.69375, 172.14782, ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB, 6/21 11:00:00, 31.89900, 2.55577E-002, 59939.46000, 77.00000, 18.26955, 0.00000
- Zone Sizing Information, THERMAL ZONE 2, Heating, 2816033.74087, 3520042.17609, 95.12921, 118.91151, ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB, 1/21 09:00:00, -10.20000, 1.91331E-003, 59939.46000, 77.00000, 18.26955, 0.00000
- Zone Sizing Information, THERMAL ZONE 3, Cooling, 794704.55406, 913910.23716, 67.42465, 77.53835, ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB, 6/21 09:00:00, 29.11500, 2.55516E-002, 20172.71000, 21.00000, 6.19820, 0.00000
- Zone Sizing Information, THERMAL ZONE 3, Heating, 995547.42795, 1244434.28494, 33.63264, 42.04080, ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB, 1/21 09:00:00, -10.20000, 1.91331E-003, 20172.71000, 21.00000, 6.19820, 0.00000
+ Zone Sizing Information, THERMAL ZONE 1, Cooling, 2329832.11228, 2679306.92912, 170.74425, 196.35588, ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB, 6/21 14:00:00, 33.90000, 2.08965E-002, 80028.36000, 77.00000, 24.39264, 0.00000
+ Zone Sizing Information, THERMAL ZONE 1, Heating, 4127396.93861, 5159246.17326, 109.41006, 136.76257, ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB, 1/21 08:00:00, -10.20000, 1.57444E-003, 80028.36000, 77.00000, 24.39264, 0.00000
+ Zone Sizing Information, THERMAL ZONE 2, Cooling, 1667240.38146, 1917326.43868, 122.18350, 140.51103, ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB, 6/21 14:00:00, 33.90000, 2.08965E-002, 59939.46000, 77.00000, 18.26955, 0.00000
+ Zone Sizing Information, THERMAL ZONE 2, Heating, 2868082.79393, 3585103.49241, 75.97747, 94.97184, ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB, 1/21 08:00:00, -10.20000, 1.57444E-003, 59939.46000, 77.00000, 18.26955, 0.00000
+ Zone Sizing Information, THERMAL ZONE 3, Cooling, 762075.16699, 876386.44204, 52.99939, 60.94930, ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB, 6/21 09:00:00, 29.11500, 2.08868E-002, 20172.71000, 21.00000, 6.19820, 0.00000
+ Zone Sizing Information, THERMAL ZONE 3, Heating, 1013960.58367, 1267450.72959, 26.87210, 33.59013, ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB, 1/21 08:00:00, -10.20000, 1.57444E-003, 20172.71000, 21.00000, 6.19820, 0.00000
 ! <System Sizing Information>, System Name, Load Type, Peak Load Kind, User Design Capacity [W], Calc Des Air Flow Rate [m3/s], User Des Air Flow Rate [m3/s], Design Day Name, Date/Time of Peak
- System Sizing Information, THERMAL ZONE 1 PSZ-AC, Cooling, Sensible, 2860986.95, 237.74939, 237.74939, ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB, 6/21 13:00:00
- System Sizing Information, THERMAL ZONE 1 PSZ-AC, Heating, Sensible, 5726915.24, 170.95894, 170.95894, ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB, 1/21 09:00:00
- System Sizing Information, THERMAL ZONE 2 PSZ-AC, Cooling, Sensible, 2068627.14, 172.14782, 172.14782, ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB, 6/21 13:00:00
- System Sizing Information, THERMAL ZONE 2 PSZ-AC, Heating, Sensible, 4023310.93, 118.91151, 118.91151, ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB, 1/21 09:00:00
- System Sizing Information, THERMAL ZONE 3 PSZ-AC, Cooling, Sensible, 915916.56, 77.65471, 77.65471, ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB, 6/21 09:00:00
- System Sizing Information, THERMAL ZONE 3 PSZ-AC, Heating, Sensible, 1414469.39, 42.04080, 42.04080, ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB, 1/21 09:00:00
+ System Sizing Information, THERMAL ZONE 1 PSZ-AC, Cooling, Sensible, 2932580.20, 196.35588, 196.35588, ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB, 6/21 14:00:00
+ System Sizing Information, THERMAL ZONE 1 PSZ-AC, Heating, Sensible, 5927677.38, 141.52442, 141.52442, ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB, 1/21 08:00:00
+ System Sizing Information, THERMAL ZONE 2 PSZ-AC, Cooling, Sensible, 2108401.12, 140.51103, 140.51103, ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB, 6/21 14:00:00
+ System Sizing Information, THERMAL ZONE 2 PSZ-AC, Heating, Sensible, 4162045.34, 98.06351, 98.06351, ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB, 1/21 08:00:00
+ System Sizing Information, THERMAL ZONE 3 PSZ-AC, Cooling, Sensible, 914502.76, 62.99734, 62.99734, ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB, 6/21 13:00:00
+ System Sizing Information, THERMAL ZONE 3 PSZ-AC, Heating, Sensible, 1463190.39, 34.83196, 34.83196, ABERDEEN.PROVING.GROUND-PHILL ANN HTG 99.6% CONDNS DB, 1/21 09:00:00
 ! <Component Sizing Information>, Component Type, Component Name, Input Field Description, Value
- Component Sizing Information, AirTerminal:SingleDuct:ConstantVolume:NoReheat, THERMAL ZONE 1 PSZ-AC DIFFUSER, Design Size Maximum Air Flow Rate [m3/s], 237.74939
- Component Sizing Information, AirTerminal:SingleDuct:ConstantVolume:NoReheat, THERMAL ZONE 2 PSZ-AC DIFFUSER, Design Size Maximum Air Flow Rate [m3/s], 172.14782
- Component Sizing Information, AirTerminal:SingleDuct:ConstantVolume:NoReheat, THERMAL ZONE 3 PSZ-AC DIFFUSER, Design Size Maximum Air Flow Rate [m3/s], 77.53835
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Sum of Air Terminal Maximum Heating Flow Rates [m3/s], 237.74939
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Sum of Air Terminal Minimum Heating Flow Rates [m3/s], 237.74939
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Sum of Air Terminal Maximum Flow Rates [m3/s], 237.74939
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Adjusted Heating Design Air Flow Rate [m3/s], 237.74939
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Adjusted Cooling Design Air Flow Rate [m3/s], 237.74939
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Adjusted Main Design Air Flow Rate [m3/s], 237.74939
+ Component Sizing Information, AirTerminal:SingleDuct:ConstantVolume:NoReheat, THERMAL ZONE 1 PSZ-AC DIFFUSER, Design Size Maximum Air Flow Rate [m3/s], 196.35588
+ Component Sizing Information, AirTerminal:SingleDuct:ConstantVolume:NoReheat, THERMAL ZONE 2 PSZ-AC DIFFUSER, Design Size Maximum Air Flow Rate [m3/s], 140.51103
+ Component Sizing Information, AirTerminal:SingleDuct:ConstantVolume:NoReheat, THERMAL ZONE 3 PSZ-AC DIFFUSER, Design Size Maximum Air Flow Rate [m3/s], 60.94930
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Sum of Air Terminal Maximum Heating Flow Rates [m3/s], 196.35588
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Sum of Air Terminal Minimum Heating Flow Rates [m3/s], 196.35588
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Sum of Air Terminal Maximum Flow Rates [m3/s], 196.35588
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Adjusted Heating Design Air Flow Rate [m3/s], 196.35588
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Adjusted Cooling Design Air Flow Rate [m3/s], 196.35588
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Adjusted Main Design Air Flow Rate [m3/s], 196.35588
  Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, User Heating Air Flow Ratio [], 1.00000
  Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Calculated Heating Air Flow Ratio [], 1.00000
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Sum of Air Terminal Maximum Heating Flow Rates [m3/s], 172.14782
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Sum of Air Terminal Minimum Heating Flow Rates [m3/s], 172.14782
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Sum of Air Terminal Maximum Flow Rates [m3/s], 172.14782
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Adjusted Heating Design Air Flow Rate [m3/s], 172.14782
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Adjusted Cooling Design Air Flow Rate [m3/s], 172.14782
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Adjusted Main Design Air Flow Rate [m3/s], 172.14782
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Sum of Air Terminal Maximum Heating Flow Rates [m3/s], 140.51103
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Sum of Air Terminal Minimum Heating Flow Rates [m3/s], 140.51103
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Sum of Air Terminal Maximum Flow Rates [m3/s], 140.51103
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Adjusted Heating Design Air Flow Rate [m3/s], 140.51103
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Adjusted Cooling Design Air Flow Rate [m3/s], 140.51103
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Adjusted Main Design Air Flow Rate [m3/s], 140.51103
  Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, User Heating Air Flow Ratio [], 1.00000
  Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Calculated Heating Air Flow Ratio [], 1.00000
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Sum of Air Terminal Maximum Heating Flow Rates [m3/s], 77.53835
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Sum of Air Terminal Minimum Heating Flow Rates [m3/s], 77.53835
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Sum of Air Terminal Maximum Flow Rates [m3/s], 77.53835
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Adjusted Heating Design Air Flow Rate [m3/s], 77.53835
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Adjusted Cooling Design Air Flow Rate [m3/s], 77.65471
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Adjusted Main Design Air Flow Rate [m3/s], 77.65471
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Sum of Air Terminal Maximum Heating Flow Rates [m3/s], 60.94930
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Sum of Air Terminal Minimum Heating Flow Rates [m3/s], 60.94930
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Sum of Air Terminal Maximum Flow Rates [m3/s], 60.94930
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Adjusted Heating Design Air Flow Rate [m3/s], 60.94930
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Adjusted Cooling Design Air Flow Rate [m3/s], 62.99734
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Adjusted Main Design Air Flow Rate [m3/s], 62.99734
  Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, User Heating Air Flow Ratio [], 1.00000
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Calculated Heating Air Flow Ratio [], 0.99850
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Design Supply Air Flow Rate [m3/s], 237.74939
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Design Supply Air Flow Rate [m3/s], 172.14782
- Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Design Supply Air Flow Rate [m3/s], 77.65471
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Calculated Heating Air Flow Ratio [], 0.96749
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 1 PSZ-AC, Design Supply Air Flow Rate [m3/s], 196.35588
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 2 PSZ-AC, Design Supply Air Flow Rate [m3/s], 140.51103
+ Component Sizing Information, AirLoopHVAC, THERMAL ZONE 3 PSZ-AC, Design Supply Air Flow Rate [m3/s], 62.99734
 !<Controller:MechanicalVentilation>,Name,Availability Schedule Name,Demand Controlled Ventilation {Yes/No},System Outdoor Air Method,Zone Maximum Outdoor Air Fraction,Number of Zones,Zone Name,DSOA Name,DSZAD Name
  Controller:MechanicalVentilation,CONTROLLER MECHANICAL VENTILATION 1,THERMAL ZONE 1 PSZ-AC OCC SCH,No,ZoneSum,1.00,1,THERMAL ZONE 1,SPACE TYPE 1 VENTILATION,
  Controller:MechanicalVentilation,CONTROLLER MECHANICAL VENTILATION 2,THERMAL ZONE 2 PSZ-AC OCC SCH,No,ZoneSum,1.00,1,THERMAL ZONE 2,SPACE TYPE 2 VENTILATION,
  Controller:MechanicalVentilation,CONTROLLER MECHANICAL VENTILATION 3,THERMAL ZONE 3 PSZ-AC OCC SCH,No,ZoneSum,1.00,1,THERMAL ZONE 3,SPACE TYPE 3 VENTILATION,
- Component Sizing Information, Controller:OutdoorAir, THERMAL ZONE 1 PSZ-AC OA SYSTEM CONTROLLER, Maximum Outdoor Air Flow Rate [m3/s], 237.74939
+ Component Sizing Information, Controller:OutdoorAir, THERMAL ZONE 1 PSZ-AC OA SYSTEM CONTROLLER, Maximum Outdoor Air Flow Rate [m3/s], 196.35588
  Component Sizing Information, Controller:OutdoorAir, THERMAL ZONE 1 PSZ-AC OA SYSTEM CONTROLLER, Minimum Outdoor Air Flow Rate [m3/s], 24.39264
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, Design Size Supply Air Flow Rate [m3/s], 237.74939
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, Design Size Heating Supply Air Flow Rate [m3/s], 237.74939
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, Design Size Cooling Supply Air Flow Rate [m3/s], 237.74939
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, Design Size Supply Air Flow Rate [m3/s], 196.35588
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, Design Size Heating Supply Air Flow Rate [m3/s], 196.35588
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, Design Size Cooling Supply Air Flow Rate [m3/s], 196.35588
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, User-Specified No Load Supply Air Flow Rate [m3/s], 0.00000
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, Design Size Nominal Cooling Capacity [W], 4725534.57183
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, Design Size Nominal Cooling Capacity [W], 4381860.51375
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, User-Specified Nominal Cooling Capacity [W], 8000000.00000
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, Design Size Nominal Heating Capacity [W], 7671280.65198
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, Design Size Nominal Heating Capacity [W], 8130563.87386
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, Design Size Maximum Supply Air Temperature [C], 50.00000
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, User-Specified Maximum Supply Air Temperature [C], 80.00000
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, User-Specified Supplemental Heating Coil Nominal Capacity [W], 0.00000
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 1 PSZ-AC UNITARY AC, Fraction of Supply Air Flow That Goes Through the Controlling Zone, 1.00000
- Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 1 PSZ-AC 1SPD DX AC CLG COIL, Design Size Rated Air Flow Rate [m3/s], 237.74939
- Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 1 PSZ-AC 1SPD DX AC CLG COIL, Design Size Gross Rated Total Cooling Capacity [W], 4725534.57183
+ Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 1 PSZ-AC 1SPD DX AC CLG COIL, Design Size Rated Air Flow Rate [m3/s], 196.35588
+ Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 1 PSZ-AC 1SPD DX AC CLG COIL, Design Size Gross Rated Total Cooling Capacity [W], 4381860.51375
  Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 1 PSZ-AC 1SPD DX AC CLG COIL, User-Specified Gross Rated Total Cooling Capacity [W], 8000000.00000
- Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 1 PSZ-AC 1SPD DX AC CLG COIL, Design Size Gross Rated Sensible Heat Ratio, 0.62908
+ Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 1 PSZ-AC 1SPD DX AC CLG COIL, Design Size Gross Rated Sensible Heat Ratio, 0.60208
 ! <DX Cooling Coil Standard Rating Information>, Component Type, Component Name, Standard Rating (Net) Cooling Capacity {W}, Standard Rated Net COP {W/W}, EER {Btu/W-h}, SEER User {Btu/W-h}, SEER Standard {Btu/W-h}, IEER {Btu/W-h}
- DX Cooling Coil Standard Rating Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 1 PSZ-AC 1SPD DX AC CLG COIL, 7815337.6, 2.74, 9.36, 10.84, 9.92, 10.92
- DX Cooling Coil Standard Rating Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 1 PSZ-AC 1SPD DX AC CLG COIL, 7777036.2, 2.69, 9.19, 10.63, 10.00,  
- Component Sizing Information, Coil:Heating:Fuel, THERMAL ZONE 1 PSZ-AC GAS HTG COIL 22948KBTU/HR 0.8 THERMAL EFF, Design Size Nominal Capacity [W], 7671280.65198
- Component Sizing Information, Fan:OnOff, THERMAL ZONE 1 PSZ-AC FAN, Design Size Maximum Flow Rate [m3/s], 237.74939
+ DX Cooling Coil Standard Rating Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 1 PSZ-AC 1SPD DX AC CLG COIL, 7847347.2, 2.78, 9.50, 11.03, 10.09, 11.23
+ DX Cooling Coil Standard Rating Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 1 PSZ-AC 1SPD DX AC CLG COIL, 7815714.2, 2.74, 9.36, 10.84, 10.20,  
+ Component Sizing Information, Coil:Heating:Fuel, THERMAL ZONE 1 PSZ-AC GAS HTG COIL 22948KBTU/HR 0.8 THERMAL EFF, Design Size Nominal Capacity [W], 8130563.87386
+ Component Sizing Information, Fan:OnOff, THERMAL ZONE 1 PSZ-AC FAN, Design Size Maximum Flow Rate [m3/s], 196.35588
  Component Sizing Information, Coil:Heating:Electric, THERMAL ZONE 1 PSZ-AC NO HEAT, User-Specified Nominal Capacity [W], 0.00000
- Component Sizing Information, Controller:OutdoorAir, THERMAL ZONE 2 PSZ-AC OA SYSTEM CONTROLLER, Maximum Outdoor Air Flow Rate [m3/s], 172.14782
+ Component Sizing Information, Controller:OutdoorAir, THERMAL ZONE 2 PSZ-AC OA SYSTEM CONTROLLER, Maximum Outdoor Air Flow Rate [m3/s], 140.51103
  Component Sizing Information, Controller:OutdoorAir, THERMAL ZONE 2 PSZ-AC OA SYSTEM CONTROLLER, Minimum Outdoor Air Flow Rate [m3/s], 18.26955
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, Design Size Supply Air Flow Rate [m3/s], 172.14782
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, Design Size Heating Supply Air Flow Rate [m3/s], 172.14782
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, Design Size Cooling Supply Air Flow Rate [m3/s], 172.14782
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, Design Size Supply Air Flow Rate [m3/s], 140.51103
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, Design Size Heating Supply Air Flow Rate [m3/s], 140.51103
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, Design Size Cooling Supply Air Flow Rate [m3/s], 140.51103
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, User-Specified No Load Supply Air Flow Rate [m3/s], 0.00000
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, Design Size Nominal Cooling Capacity [W], 3330441.20342
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, Design Size Nominal Cooling Capacity [W], 3127787.97951
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, User-Specified Nominal Cooling Capacity [W], 5600000.00000
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, Design Size Nominal Heating Capacity [W], 5573017.18388
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, Design Size Nominal Heating Capacity [W], 5844299.82783
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, Design Size Maximum Supply Air Temperature [C], 50.00000
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, User-Specified Maximum Supply Air Temperature [C], 80.00000
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, User-Specified Supplemental Heating Coil Nominal Capacity [W], 0.00000
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 2 PSZ-AC UNITARY AC, Fraction of Supply Air Flow That Goes Through the Controlling Zone, 1.00000
- Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 2 PSZ-AC 1SPD DX AC CLG COIL 8807KBTU/HR 9.5EER, Design Size Rated Air Flow Rate [m3/s], 172.14782
- Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 2 PSZ-AC 1SPD DX AC CLG COIL 8807KBTU/HR 9.5EER, Design Size Gross Rated Total Cooling Capacity [W], 3330441.20342
+ Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 2 PSZ-AC 1SPD DX AC CLG COIL 8807KBTU/HR 9.5EER, Design Size Rated Air Flow Rate [m3/s], 140.51103
+ Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 2 PSZ-AC 1SPD DX AC CLG COIL 8807KBTU/HR 9.5EER, Design Size Gross Rated Total Cooling Capacity [W], 3127787.97951
  Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 2 PSZ-AC 1SPD DX AC CLG COIL 8807KBTU/HR 9.5EER, User-Specified Gross Rated Total Cooling Capacity [W], 5600000.00000
- Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 2 PSZ-AC 1SPD DX AC CLG COIL 8807KBTU/HR 9.5EER, Design Size Gross Rated Sensible Heat Ratio, 0.63608
- DX Cooling Coil Standard Rating Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 2 PSZ-AC 1SPD DX AC CLG COIL 8807KBTU/HR 9.5EER, 5480980.1, 3.02, 10.29, 10.21, 10.09, 10.37
- DX Cooling Coil Standard Rating Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 2 PSZ-AC 1SPD DX AC CLG COIL 8807KBTU/HR 9.5EER, 5453247.1, 2.96, 10.09, 10.00, 10.16,  
- Component Sizing Information, Coil:Heating:Fuel, THERMAL ZONE 2 PSZ-AC GAS HTG COIL 16711KBTU/HR 0.8 THERMAL EFF, Design Size Nominal Capacity [W], 5573017.18388
- Component Sizing Information, Fan:OnOff, THERMAL ZONE 2 PSZ-AC FAN, Design Size Maximum Flow Rate [m3/s], 172.14782
+ Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 2 PSZ-AC 1SPD DX AC CLG COIL 8807KBTU/HR 9.5EER, Design Size Gross Rated Sensible Heat Ratio, 0.60508
+ DX Cooling Coil Standard Rating Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 2 PSZ-AC 1SPD DX AC CLG COIL 8807KBTU/HR 9.5EER, 5505444.8, 3.07, 10.48, 10.41, 10.29, 10.66
+ DX Cooling Coil Standard Rating Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 2 PSZ-AC 1SPD DX AC CLG COIL 8807KBTU/HR 9.5EER, 5482808.5, 3.02, 10.31, 10.23, 10.40,  
+ Component Sizing Information, Coil:Heating:Fuel, THERMAL ZONE 2 PSZ-AC GAS HTG COIL 16711KBTU/HR 0.8 THERMAL EFF, Design Size Nominal Capacity [W], 5844299.82783
+ Component Sizing Information, Fan:OnOff, THERMAL ZONE 2 PSZ-AC FAN, Design Size Maximum Flow Rate [m3/s], 140.51103
  Component Sizing Information, Coil:Heating:Electric, THERMAL ZONE 2 PSZ-AC NO HEAT, User-Specified Nominal Capacity [W], 0.00000
- Component Sizing Information, Controller:OutdoorAir, THERMAL ZONE 3 PSZ-AC OA SYSTEM CONTROLLER, Maximum Outdoor Air Flow Rate [m3/s], 77.65471
+ Component Sizing Information, Controller:OutdoorAir, THERMAL ZONE 3 PSZ-AC OA SYSTEM CONTROLLER, Maximum Outdoor Air Flow Rate [m3/s], 62.99734
  Component Sizing Information, Controller:OutdoorAir, THERMAL ZONE 3 PSZ-AC OA SYSTEM CONTROLLER, Minimum Outdoor Air Flow Rate [m3/s], 6.19820
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, Design Size Supply Air Flow Rate [m3/s], 77.65471
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, Design Size Heating Supply Air Flow Rate [m3/s], 77.53835
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, Design Size Cooling Supply Air Flow Rate [m3/s], 77.65471
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, Design Size Supply Air Flow Rate [m3/s], 62.99734
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, Design Size Heating Supply Air Flow Rate [m3/s], 60.94930
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, Design Size Cooling Supply Air Flow Rate [m3/s], 62.99734
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, User-Specified No Load Supply Air Flow Rate [m3/s], 0.00000
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, Design Size Nominal Cooling Capacity [W], 1610709.79546
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, Design Size Nominal Cooling Capacity [W], 1315696.32595
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, User-Specified Nominal Cooling Capacity [W], 2000000.00000
- Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, Design Size Nominal Heating Capacity [W], 2447865.12598
+ Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, Design Size Nominal Heating Capacity [W], 2386657.88311
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, Design Size Maximum Supply Air Temperature [C], 50.00000
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, User-Specified Maximum Supply Air Temperature [C], 80.00000
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, User-Specified Supplemental Heating Coil Nominal Capacity [W], 0.00000
  Component Sizing Information, AirLoopHVAC:UnitarySystem, THERMAL ZONE 3 PSZ-AC UNITARY AC, Fraction of Supply Air Flow That Goes Through the Controlling Zone, 1.00000
- Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 3 PSZ-AC 1SPD DX AC CLG COIL 6119KBTU/HR 9.5EER, Design Size Rated Air Flow Rate [m3/s], 77.65471
- Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 3 PSZ-AC 1SPD DX AC CLG COIL 6119KBTU/HR 9.5EER, Design Size Gross Rated Total Cooling Capacity [W], 1610709.79546
+ Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 3 PSZ-AC 1SPD DX AC CLG COIL 6119KBTU/HR 9.5EER, Design Size Rated Air Flow Rate [m3/s], 62.99734
+ Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 3 PSZ-AC 1SPD DX AC CLG COIL 6119KBTU/HR 9.5EER, Design Size Gross Rated Total Cooling Capacity [W], 1315696.32595
  Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 3 PSZ-AC 1SPD DX AC CLG COIL 6119KBTU/HR 9.5EER, User-Specified Gross Rated Total Cooling Capacity [W], 2000000.00000
- Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 3 PSZ-AC 1SPD DX AC CLG COIL 6119KBTU/HR 9.5EER, Design Size Gross Rated Sensible Heat Ratio, 0.69108
- DX Cooling Coil Standard Rating Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 3 PSZ-AC 1SPD DX AC CLG COIL 6119KBTU/HR 9.5EER, 1944986.0, 2.94, 10.04, 9.94, 9.83, 9.97
- DX Cooling Coil Standard Rating Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 3 PSZ-AC 1SPD DX AC CLG COIL 6119KBTU/HR 9.5EER, 1932475.9, 2.87, 9.79, 9.68, 9.84,  
- Component Sizing Information, Coil:Heating:Fuel, THERMAL ZONE 3 PSZ-AC GAS HTG COIL 11891KBTU/HR 0.8 THERMAL EFF, Design Size Nominal Capacity [W], 2447865.12598
- Component Sizing Information, Fan:OnOff, THERMAL ZONE 3 PSZ-AC FAN, Design Size Maximum Flow Rate [m3/s], 77.65471
+ Component Sizing Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 3 PSZ-AC 1SPD DX AC CLG COIL 6119KBTU/HR 9.5EER, Design Size Gross Rated Sensible Heat Ratio, 0.64008
+ DX Cooling Coil Standard Rating Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 3 PSZ-AC 1SPD DX AC CLG COIL 6119KBTU/HR 9.5EER, 1956320.6, 3.01, 10.27, 10.19, 10.07, 10.33
+ DX Cooling Coil Standard Rating Information, Coil:Cooling:DX:SingleSpeed, THERMAL ZONE 3 PSZ-AC 1SPD DX AC CLG COIL 6119KBTU/HR 9.5EER, 1946171.7, 2.95, 10.06, 9.97, 10.13,  
+ Component Sizing Information, Coil:Heating:Fuel, THERMAL ZONE 3 PSZ-AC GAS HTG COIL 11891KBTU/HR 0.8 THERMAL EFF, Design Size Nominal Capacity [W], 2386657.88311
+ Component Sizing Information, Fan:OnOff, THERMAL ZONE 3 PSZ-AC FAN, Design Size Maximum Flow Rate [m3/s], 62.99734
  Component Sizing Information, Coil:Heating:Electric, THERMAL ZONE 3 PSZ-AC NO HEAT, User-Specified Nominal Capacity [W], 0.00000
 ! <Environment>,Environment Name,Environment Type, Start Date, End Date, Start DayOfWeek, Duration {#days}, Source:Start DayOfWeek,  Use Daylight Saving, Use Holidays, Apply Weekend Holiday Rule,  Use Rain Values, Use Snow Values, Sky Temperature Model
 ! <Environment:Special Days>, Special Day Name, Special Day Type, Source, Start Date, Duration {#days}
@@ -229,13 +229,13 @@ Zone Volume Capacitance Multiplier,   1.000 ,   1.000,   1.000,   1.000
 ! <Environment:WarmupDays>, NumberofWarmupDays
 Environment,RUN PERIOD 1,WeatherFileRunPeriod,01/01/2023,12/31/2023,Sunday,365,Use RunPeriod Specified Day,No,No,No,Yes,Yes,Clark and Allen
 Environment:Daylight Saving,No,RunPeriod Object
-Environment:WarmupDays,  7
+Environment:WarmupDays,  4
 ! <Tabular Report>,Style,Unit Conversion
 Tabular Report,HTML,None
 ! <Warmup Convergence Information>,Zone Name,Environment Type/Name,Average Warmup Temperature Difference {deltaC},Std Dev Warmup Temperature Difference {deltaC},Max Temperature Pass/Fail Convergence,Min Temperature Pass/Fail Convergence,Average Warmup Load Difference {W},Std Dev Warmup Load Difference {W},Heating Load Pass/Fail Convergence,Cooling Load Pass/Fail Convergence
- Warmup Convergence Information,THERMAL ZONE 1,RunPeriod: RUN PERIOD 1,1.4802973662E-015,1.3240182151E-015,Pass,Pass,7.0897160392E-002,8.6398084726E-002,Pass,Pass
- Warmup Convergence Information,THERMAL ZONE 2,RunPeriod: RUN PERIOD 1,1.5543122345E-015,1.1819226651E-015,Pass,Pass,7.0510789392E-002,8.4769931071E-002,Pass,Pass
- Warmup Convergence Information,THERMAL ZONE 3,RunPeriod: RUN PERIOD 1,1.4802973662E-015,9.8191818835E-016,Pass,Pass,8.9684602219E-002,0.1083710293,Pass,Pass
+ Warmup Convergence Information,THERMAL ZONE 1,RunPeriod: RUN PERIOD 1,0.2748285544,0.2316677937,Pass,Pass,11.5978177699,53.7808724300,Pass,Pass
+ Warmup Convergence Information,THERMAL ZONE 2,RunPeriod: RUN PERIOD 1,0.2599701461,0.2182520576,Pass,Pass,0.8276585083,2.2286744725,Pass,Pass
+ Warmup Convergence Information,THERMAL ZONE 3,RunPeriod: RUN PERIOD 1,0.3315283537,0.2564826850,Pass,Pass,0.4477128728,0.6123008221,Pass,Pass
 ! <Program Control Information:Threads/Parallel Sims>, Threading Supported,Maximum Number of Threads, Env Set Threads (OMP_NUM_THREADS), EP Env Set Threads (EP_OMP_NUM_THREADS), IDF Set Threads, Number of Threads Used (Interior Radiant Exchange), Number Nominal Surfaces, Number Parallel Sims
 Program Control:Threads/Parallel Sims, No,1, N/A, N/A, N/A, N/A, N/A, N/A
 End of Data

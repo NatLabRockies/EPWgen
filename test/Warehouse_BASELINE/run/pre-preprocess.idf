@@ -6123,11 +6123,11 @@ Output:Table:SummaryReports,
   AllSummary;                             !- Report Name 1
 
 Site:Location,
-  Kingsville,                             !- Name
-  27.5045,                                !- Latitude {deg}
-  -97.8083,                               !- Longitude {deg}
-  -6,                                     !- Time Zone {hr}
-  15;                                     !- Elevation {m}
+  Denver / Stapleton International_ Co.,  !- Name
+  39.7833,                                !- Latitude {deg}
+  -104.8667,                              !- Longitude {deg}
+  -7,                                     !- Time Zone {hr}
+  1626;                                   !- Elevation {m}
 
 Site:GroundTemperature:BuildingSurface,
   19.527,                                 !- January Ground Temperature {C}

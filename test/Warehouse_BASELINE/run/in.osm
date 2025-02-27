@@ -5,11 +5,11 @@ OS:Version,
 
 OS:Site,
   {20c387d2-9190-4ba2-9f2d-ddb0985e9716}, !- Handle
-  Kingsville,                             !- Name
-  27.5045,                                !- Latitude {deg}
-  -97.8083,                               !- Longitude {deg}
-  -6,                                     !- Time Zone {hr}
-  15,                                     !- Elevation {m}
+  Denver / Stapleton International_ Co.,  !- Name
+  39.7833,                                !- Latitude {deg}
+  -104.8667,                              !- Longitude {deg}
+  -7,                                     !- Time Zone {hr}
+  1626,                                   !- Elevation {m}
   Urban;                                  !- Terrain
 
 OS:YearDescription,
@@ -7544,17 +7544,17 @@ OS:Output:Variable,
 
 OS:WeatherFile,
   {9aa5d1e1-3855-46c3-adce-ad085cba1e7a}, !- Handle
-  Kingsville,                             !- City
-  TX,                                     !- State Province Region
+  Denver / Stapleton International_ Co.,  !- City
+  CO,                                     !- State Province Region
   US,                                     !- Country
   AMY,                                    !- Data Source
-  KNQI0,                                  !- WMO Number
-  27.5045,                                !- Latitude {deg}
-  -97.8083,                               !- Longitude {deg}
-  -6,                                     !- Time Zone {hr}
-  15,                                     !- Elevation {m}
-  /private/var/folders/cj/vhw1_9g1151dh76sjlgdyq19k7f3h5/T/osmodel-5e54-d882-2ce9-2290-1740011246-0/resources/files/KNQI0_2023.epw, !- Url
-  F14141AF,                               !- Checksum
+  72469,                                  !- WMO Number
+  39.7833,                                !- Latitude {deg}
+  -104.8667,                              !- Longitude {deg}
+  -7,                                     !- Time Zone {hr}
+  1626,                                   !- Elevation {m}
+  /private/var/folders/cj/vhw1_9g1151dh76sjlgdyq19k7f3h5/T/osmodel-061a-62c2-2e11-4438-1740199969-0/resources/files/in.epw, !- Url
+  895625F9,                               !- Checksum
   2023,                                   !- Start Date Actual Year
   Sunday;                                 !- Start Day of Week
 

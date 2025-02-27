@@ -11,7 +11,7 @@ Starting state preprocess
 Returned from state preprocess
 Starting state simulation
 EnergyPlus Starting
-EnergyPlus, Version 24.1.0-9d7789a3ac, YMD=2025.02.20 13:01
+EnergyPlus, Version 24.1.0-9d7789a3ac, YMD=2025.02.21 21:53
 Initializing Response Factors
 Calculating CTFs for "INTERIORFURNISHINGS"
 Calculating CTFs for "TYPICAL INSULATED METAL BUILDING ROOF R-10.31"
@@ -51,8 +51,10 @@ Warming up
 Warming up
 Warming up
 Warming up
+Warming up
 Performing Zone Sizing Simulation
 ...for Sizing Period: #1 ABERDEEN.PROVING.GROUND-PHILL ANN CLG .4% CONDNS DP=>MDB
+Warming up
 Warming up
 Warming up
 Warming up
@@ -73,6 +75,9 @@ Warming up {1}
 Warming up {2}
 Warming up {3}
 Warming up {4}
+Warming up {5}
+Warming up {6}
+Warming up {7}
 Starting Simulation at 01/01/2023 for RUN PERIOD 1
 Updating Shadowing Calculations, Start Date=01/21/2023
 Continuing Simulation at 01/21/2023 for RUN PERIOD 1
@@ -113,7 +118,7 @@ Continuing Simulation at 12/27/2023 for RUN PERIOD 1
 Writing tabular output file results using HTML format.
 Computing Life Cycle Costs and Reporting
 Writing final SQL reports
-EnergyPlus Run Time=00hr 00min  2.42sec
+EnergyPlus Run Time=00hr 00min  2.49sec
 EnergyPlus Completed Successfully.
 Returned from state simulation
 Starting state reporting_measures

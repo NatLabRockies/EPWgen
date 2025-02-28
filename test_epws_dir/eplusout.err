@@ -1,11 +1,11 @@
-Program Version,EnergyPlus, Version 23.2.0-7636e6b3e9, YMD=2025.02.27 14:36,
+Program Version,EnergyPlus, Version 23.2.0-7636e6b3e9, YMD=2025.02.28 11:19,
    ** Warning ** Version: in IDF="24.2" not the same as expected="23.2"
    ** Warning ** Version: in IDF="24.2" not the same as expected="23.2"
    ** Warning ** Weather file location will be used rather than entered (IDF) Location object.
    **   ~~~   ** ..Location object=CHICAGO_OHARE_INTL_AP_IL_USA_TMY3_725300
-   **   ~~~   ** ..Weather File Location=Fort Ord / Blanco CA US AMY WMO#=69007
-   **   ~~~   ** ..due to location differences, Latitude difference=[5.30] degrees, Longitude difference=[33.84] degrees.
-   **   ~~~   ** ..Time Zone difference=[2.0] hour(s), Elevation difference=[79.10] percent, [159.00] meters.
+   **   ~~~   ** ..Weather File Location=Coatesville / Westwood PA US AMY WMO#=KMQS0
+   **   ~~~   ** ..due to location differences, Latitude difference=[2.00] degrees, Longitude difference=[12.05] degrees.
+   **   ~~~   ** ..Time Zone difference=[1.0] hour(s), Elevation difference=[0.00] percent, [0.00] meters.
    ************* Testing Individual Branch Integrity
    ************* All Branches passed integrity testing
    ************* Testing Individual Supply Air Path Integrity
@@ -17,4 +17,4 @@ Program Version,EnergyPlus, Version 23.2.0-7636e6b3e9, YMD=2025.02.27 14:36,
    ************* Simulation Error Summary *************
    ************* EnergyPlus Warmup Error Summary. During Warmup: 0 Warning; 0 Severe Errors.
    ************* EnergyPlus Sizing Error Summary. During Sizing: 0 Warning; 0 Severe Errors.
-   ************* EnergyPlus Completed Successfully-- 3 Warning; 0 Severe Errors; Elapsed Time=00hr 00min  0.14sec
+   ************* EnergyPlus Completed Successfully-- 3 Warning; 0 Severe Errors; Elapsed Time=00hr 00min  0.12sec

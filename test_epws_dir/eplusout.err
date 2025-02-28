@@ -1,18 +1,20 @@
-Program Version,EnergyPlus, Version 23.2.0-7636e6b3e9, YMD=2025.02.26 12:02,
+Program Version,EnergyPlus, Version 23.2.0-7636e6b3e9, YMD=2025.02.27 14:36,
    ** Warning ** Version: in IDF="24.2" not the same as expected="23.2"
    ** Warning ** Version: in IDF="24.2" not the same as expected="23.2"
    ** Warning ** Weather file location will be used rather than entered (IDF) Location object.
    **   ~~~   ** ..Location object=CHICAGO_OHARE_INTL_AP_IL_USA_TMY3_725300
-   **   ~~~   ** ..Weather File Location=
-   **   ~~~   ** ..due to location differences, Latitude difference=[41.98] degrees, Longitude difference=[87.92] degrees.
-   **   ~~~   ** ..Time Zone difference=[6.0] hour(s), Elevation difference=[100.00] percent, [201.00] meters.
-   ** Warning ** Did you realize that you have Latitude=0.0, Longitude=0.0 and TimeZone=0.0?  Your building site is in the middle of the Atlantic Ocean.
-   **  Fatal  ** Unexpected End-of-File on EPW Weather file, while reading header information, looking for header=DATA PERIODS
-   ...Summary of Errors that led to program termination:
-   ..... Reference severe error count=0
-   ..... Last severe error=
-   ************* Warning:  Node connection errors not checked - most system input has not been read (see previous warning).
-   ************* Fatal error -- final processing.  Program exited before simulations began.  See previous error messages.
+   **   ~~~   ** ..Weather File Location=Fort Ord / Blanco CA US AMY WMO#=69007
+   **   ~~~   ** ..due to location differences, Latitude difference=[5.30] degrees, Longitude difference=[33.84] degrees.
+   **   ~~~   ** ..Time Zone difference=[2.0] hour(s), Elevation difference=[79.10] percent, [159.00] meters.
+   ************* Testing Individual Branch Integrity
+   ************* All Branches passed integrity testing
+   ************* Testing Individual Supply Air Path Integrity
+   ************* All Supply Air Paths passed integrity testing
+   ************* Testing Individual Return Air Path Integrity
+   ************* All Return Air Paths passed integrity testing
+   ************* No node connection errors were found.
+   ************* Beginning Simulation
+   ************* Simulation Error Summary *************
    ************* EnergyPlus Warmup Error Summary. During Warmup: 0 Warning; 0 Severe Errors.
    ************* EnergyPlus Sizing Error Summary. During Sizing: 0 Warning; 0 Severe Errors.
-   ************* EnergyPlus Terminated--Fatal Error Detected. 4 Warning; 0 Severe Errors; Elapsed Time=00hr 00min  0.08sec
+   ************* EnergyPlus Completed Successfully-- 3 Warning; 0 Severe Errors; Elapsed Time=00hr 00min  0.14sec

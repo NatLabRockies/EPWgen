@@ -11,3 +11,4 @@ requests==2.31.0
 PyQt5==5.15.11
 folium==0.17.0 
 PyQtWebEngine==5.15.7
+openstudio==3.7.0

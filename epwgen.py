@@ -77,8 +77,8 @@ class MainWindow(QWidget):
                 epw_path = os.path.join(save_folder, f'{save_name}.epw')
 
             quality_checks = check_epw_quality(epw_path)
-            status_EP = run_energyplus_simulations(epw_path)
-            print(status_EP)
+            # status_EP = run_energyplus_simulations(epw_path)
+            # print(status_EP)
 
             # 2. Suppose retrieve_distance_station_location returns [distance_mi, lat_station, lon_station].
             [distance_mi, lat_station, lon_station] = retrieve_distance_station_location(wmo, lat, lon)
@@ -86,10 +86,12 @@ class MainWindow(QWidget):
             # 3. Show a single dialog with text info + map including quality_checks and EnergyPlus status
             self.show_result_and_map(
                 retrieve_status, distance_mi, wmo, hdd, cdd,
-                lat, lon, lat_station, lon_station, quality_checks, status_EP
+                lat, lon, lat_station, lon_station, quality_checks, 
+                # status_EP
             )
 
-    def show_result_and_map(self, status, distance_mi, wmo, hdd, cdd, lat, lon, lat_station, lon_station, quality_checks, status_EP):
+    # def show_result_and_map(self, status, distance_mi, wmo, hdd, cdd, lat, lon, lat_station, lon_station, quality_checks, status_EP):
+    def show_result_and_map(self, status, distance_mi, wmo, hdd, cdd, lat, lon, lat_station, lon_station, quality_checks):
         """
         Create a dialog that displays textual info at the top (split into two columns)
         and a map at the bottom.
@@ -112,7 +114,7 @@ class MainWindow(QWidget):
             f"WMO: {wmo}<br>"
             f"HDD: {hdd}<br>"
             f"CDD: {cdd}<br><br>"
-            f"<b>EnergyPlus Status:</b><br>{status_EP}"
+            # f"<b>EnergyPlus Status:</b><br>{status_EP}"
         )
         general_info_label = QLabel()
         general_info_label.setTextFormat(Qt.RichText)

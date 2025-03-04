@@ -53,3 +53,46 @@ python3.11 epwgen.py
 - **methods.py**  
   This file includes supporting functions and methods used throughout the application. It encapsulates core routines that are called from the main script.
 
+
+# EPW File Metadata Description
+
+## EPW_file_name_2023
+This maps the EPW file name to the zip code.
+
+## distance_location_station_miles_2023
+Distance between the zip code centroid coordinates and the utilized weather station.
+
+## weather_station_wmo_2023
+Utilized weather station identifier.
+
+## hdd_base65F_2023
+Heating Degree Days for the selected EPW.
+
+## cdd_base65F_2023
+Cooling Degree Days for the selected EPW.
+
+## Tdb_holes_2023
+Tdb is being pulled from NOAA or other measured data sources. If there is any missing timestep, the corresponding value from MERRA2 is used. This flag informs if any MERRA2 data has been used to fill gaps.
+
+## Tdew_holes_2023
+Same as above but for Tdew.
+
+## RH_holes_2023
+Same as above but for RH.
+
+## EnergyPlus Status
+An EnergyPlus simulation has been run to verify that all the files executed correctly.
+
+## Missing Data
+Additional check to determine if the final EPW file contains any NaN values.
+
+### Additional Temperature Checks:
+- **Sudden Temp Jumps**  
+- **Constant Temp Periods**  
+- **Day-Night Swings**  
+- **Summer Freezing**  
+- **Winter Extreme Heat**  
+- **Missing Temperature Data**
+These are additional quality checks to detect anomalies or unusual patterns in the file. These tests are not used to discard files by default but serve as flags to review specific locations if issues arise when using the EPWs.
+
+

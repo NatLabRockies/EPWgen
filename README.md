@@ -1,99 +1,141 @@
-# EPWgen
+# EPWgen - Enhanced Weather File Generation
 
-EPWgen is a Python-based, cross-platform application for generating EnergyPlus Weather (EPW) files. With an intuitive graphical user interface (GUI), EPWgen allows users to create EPW files easily. The project is designed to work seamlessly on both macOS and Windows environments.
+## Author: Carlo Bianchi  
+### Last Updated: 09/12/2024  
 
-## Features
+## Overview
+EPWgen is a tool designed to generate high-quality **EnergyPlus Weather (EPW) files** by integrating data from multiple reliable sources, improving accuracy, and addressing issues found in previous methods.
 
-- **Cross-Platform Support:** Runs on macOS and Windows with minimal adjustments.
-- **GUI Application:** User-friendly interface for managing EPW files.
-- **Modular Code:** Organized into separate files for core functionality and methods.
+### Issues with Previous Methods:
+- **Too slow**
+- **Data quality issues**
+- **No data above 60° latitude**
+- **No data for past years**
+- **No rain/snow data**
+- **Superheavy repository size**
+  
+### Problems with `diyepw`:
+- **Violates physics/psychrometry (TMY + AMY)**
+- **Minimal or nonexistent quality control**
+- **No relative humidity (RH)**
+- **Limited data sources**
 
-## Requirements
+---
 
-- **Python:** Version 3.10 or later is recommended.
-- **Dependencies:** 
-  - [PyQt5](https://www.riverbankcomputing.com/software/pyqt/intro) (for GUI components)
-  - Additional libraries as specified in `requirements.txt`
+## EPWgen Solution
+### Data Sources:
+#### **MERRA-2**
+- Global dataset with data available everywhere, including **Alaska**
+- **Near real-time availability**
+- Provides **full EPWs** that act as the backbone
+- **EPWgen swaps in key variables**:
+  - **Tdb** (Dry Bulb Temperature)
+  - **Tdew** (Dew Point Temperature)
+  - **RH** (Relative Humidity)
+  - **P** (Pressure)
+  - **Wdir** (Wind Direction)
+  - **Wspeed** (Wind Speed)
+  - **Rain** (Precipitation)
+  - **Snow**
 
-## Installation
+#### **Meteostat**
+- Free, open-source library: [Meteostat Documentation](https://dev.meteostat.net/)
+- **Real-time data**
+- **Expanded coverage (~2700 locations vs. ~1200)**
+- **Data sources include**:
+  - **National Weather Service**
+  - **ISD (Global Dataset)**
+  - **SYNOP reports**
+  - **METAR reports**
+  - **MOSMIX model data** (used for gap filling)
 
-1. **Clone the Repository:**
+---
 
-   ```bash
-   git clone https://github.com/yourusername/EPWgen.git
-   cd EPWgen
+## Data Processing Workflow
 
-   
-## Set Up a Virtual Environment (Optional but Recommended)
+1. **Find the closest Meteostat location** with < 3-hour data gaps within 100 miles.
+2. **Gather the EPW file** from MERRA-2 based on selected station coordinates.
+3. **Splice the two datasets** for enhanced accuracy.
+4. **Insert metadata header**, including ASHRAE **2021 design conditions**.
+5. **Save the final EPW file** and output key metadata:
+   - **Station distance**
+   - **HDD/CDD (Heating & Cooling Degree Days)**
 
-```bash
-python3.11 -m venv env
-source env/bin/activate  # For Windows: env\Scripts\activate
-```
+### Enhancements Over Previous Methods:
+✅ **More locations covered**  
+✅ **Built-in quality checks**  
+✅ **All EPW variables filled with measured or modeled data**  
+✅ **Latest completed year available**  
+✅ **Global coverage (including high-latitude locations)**  
+✅ **ASHRAE 2021 Design Conditions**  
 
-## Install Required Packages
+---
 
-```bash
-pip install -r requirements.txt
-```
+## File Metadata Description
 
-## Usage
+### **EPW_file_name_2023**
+Maps the EPW file name to the corresponding zip code.
 
-To run EPWgen from the source code, execute:
-
-```bash
-python3.11 epwgen.py
-```
-
-## File Structure
-
-- **epwgen.py**  
-  This is the main entry point for the EPWgen application. It contains the GUI logic and ties together the overall functionality.
-
-- **methods.py**  
-  This file includes supporting functions and methods used throughout the application. It encapsulates core routines that are called from the main script.
-
-
-# EPW File Metadata Description
-
-## EPW_file_name_2023
-This maps the EPW file name to the zip code.
-
-## distance_location_station_miles_2023
+### **distance_location_station_miles_2023**
 Distance between the zip code centroid coordinates and the utilized weather station.
 
-## weather_station_wmo_2023
-Utilized weather station identifier.
+### **weather_station_wmo_2023**
+Identifies the utilized weather station.
 
-## hdd_base65F_2023
+### **hdd_base65F_2023**
 Heating Degree Days for the selected EPW.
 
-## cdd_base65F_2023
+### **cdd_base65F_2023**
 Cooling Degree Days for the selected EPW.
 
-## Tdb_holes_2023
-Tdb is being pulled from NOAA or other measured data sources. If there is any missing timestep, the corresponding value from MERRA2 is used. This flag informs if any MERRA2 data has been used to fill gaps.
+### **Tdb_holes_2023**
+If any time steps are missing in NOAA/measured data, **MERRA-2 data is used** to fill gaps. This flag indicates if MERRA-2 replacements were applied.
 
-## Tdew_holes_2023
-Same as above but for Tdew.
+### **Tdew_holes_2023**
+Same as above but for **Tdew**.
 
-## RH_holes_2023
-Same as above but for RH.
+### **RH_holes_2023**
+Same as above but for **Relative Humidity (RH)**.
 
-## EnergyPlus Status
-An EnergyPlus simulation has been run to verify that all the files executed correctly.
+### **EnergyPlus Status**
+Checks if an **EnergyPlus simulation** was successfully executed to validate file correctness.
 
-## Missing Data
-Additional check to determine if the final EPW file contains any NaN values.
+### **Missing Data**
+Verifies whether the **final EPW file contains any NaN values**.
 
-### Additional Temperature Checks:
-- **Sudden Temp Jumps**  
-- **Constant Temp Periods**  
-- **Day-Night Swings**  
-- **Summer Freezing**  
-- **Winter Extreme Heat**  
+---
+
+## **Extreme Temperature Quality Checks**
+These are **diagnostic tests** to identify anomalies in temperature data.  
+They do **not automatically discard files** but flag them for manual review if needed.
+
+- **Sudden Temperature Jumps**
+- **Constant Temperature Periods**
+- **Day-Night Temperature Swings**
+- **Summer Freezing Events**
+- **Winter Extreme Heat Events**
 - **Missing Temperature Data**
-  
-These are additional quality checks to detect anomalies or unusual patterns in the file. These tests are not used to discard files by default but serve as flags to review specific locations if issues arise when using the EPWs.
 
+---
 
+## Future Improvements
+EPWgen is actively evolving, with planned enhancements including:
+- **Integration of TMY/GaTMY datasets**
+- **Option to choose between ERA5 vs. MERRA-2**
+- **Direct MERRA-2 data usage**
+- **Data visualization and statistical outputs**
+- **STAT file and/or DDYs creation**
+- **Support for 2013 ASHRAE design conditions**
+- **Search by FIP code or ZIP code**
+- **Additional user-suggested features**
+
+---
+
+## Contributing
+Contributions are welcome! Fork the repository and submit a pull request. For major changes, open an issue first to discuss your ideas.
+
+## License
+This project is licensed under the **MIT License**.
+
+## Acknowledgements
+Special thanks to the **open-source community** for providing tools like **PyQt5, Nuitka, PyInstaller, MERRA-2, and Meteostat**, making EPWgen possible.

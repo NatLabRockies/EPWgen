@@ -93,6 +93,7 @@ Additional check to determine if the final EPW file contains any NaN values.
 - **Summer Freezing**  
 - **Winter Extreme Heat**  
 - **Missing Temperature Data**
+  
 These are additional quality checks to detect anomalies or unusual patterns in the file. These tests are not used to discard files by default but serve as flags to review specific locations if issues arise when using the EPWs.
 
 

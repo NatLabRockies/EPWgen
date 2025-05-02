@@ -11,16 +11,31 @@ import shutil
 import subprocess
 import openstudio
 
+
+import os
+import pandas as pd
+
 def check_epw_quality(epw_path):
     """
     Perform quality checks on an EPW file and return a summary of whether each variable is 'Good' or 'Suspicious'.
-    
+
     Parameters:
         epw_path (str): Path to the EPW file.
-    
+
     Returns:
         dict: Dictionary with quality check results for each tested variable.
     """
+
+    # Force absolute path
+    epw_path = os.path.abspath(epw_path)
+
+    # Check if file exists
+    if not os.path.isfile(epw_path):
+        raise FileNotFoundError(f"❌ EPW file not found: {epw_path}")
+
+    print('==================')
+    print(f"Opening EPW: {epw_path}")
+
     # Read EPW file (skip header, start from line 9)
     epw_df = pd.read_csv(epw_path, skiprows=8, header=None)
 
@@ -32,10 +47,11 @@ def check_epw_quality(epw_path):
     quality_checks["Missing Data"] = "Suspicious" if missing_values > 0 else "Good"
 
     ### 2️⃣ Enhanced Dry Bulb Temperature Checks ###
-    dry_bulb_temp = epw_df[6]
-    month = epw_df[1]
+    dry_bulb_temp = epw_df[6]  # Column 6 = Dry Bulb Temperature (°C)
+    month = epw_df[1]          # Column 1 = Month
+    day = epw_df[2]            # Column 2 = Day
 
-    # Extreme values (-50°C to 60°C)
+    # Extreme temperature values (-50°C to 60°C)
     extreme_values = ((dry_bulb_temp < -50) | (dry_bulb_temp > 60)).any()
     quality_checks["Extreme Temperature"] = "Suspicious" if extreme_values else "Good"
 
@@ -49,23 +65,85 @@ def check_epw_quality(epw_path):
     quality_checks["Constant Temp Periods"] = "Suspicious" if const_periods else "Good"
 
     # Unrealistic day-night swings (<3°C or >30°C)
-    epw_df["daily_max"] = dry_bulb_temp.groupby(epw_df[2]).transform("max")
-    epw_df["daily_min"] = dry_bulb_temp.groupby(epw_df[2]).transform("min")
+    epw_df["daily_max"] = dry_bulb_temp.groupby(day).transform("max")
+    epw_df["daily_min"] = dry_bulb_temp.groupby(day).transform("min")
     epw_df["daily_range"] = epw_df["daily_max"] - epw_df["daily_min"]
     unrealistic_swings = ((epw_df["daily_range"] < 3) | (epw_df["daily_range"] > 30)).any()
     quality_checks["Day-Night Swings"] = "Suspicious" if unrealistic_swings else "Good"
 
-    # Seasonal temperature mismatches
-    summer_issues = ((month.isin([6, 7, 8])) & (dry_bulb_temp < 0)).any()  # Summer months with freezing temps
-    winter_issues = ((month.isin([12, 1, 2])) & (dry_bulb_temp > 40)).any()  # Winter months with extreme heat
+    # Seasonal mismatches
+    summer_issues = ((month.isin([6, 7, 8])) & (dry_bulb_temp < 0)).any()
+    winter_issues = ((month.isin([12, 1, 2])) & (dry_bulb_temp > 40)).any()
     quality_checks["Summer Freezing"] = "Suspicious" if summer_issues else "Good"
     quality_checks["Winter Extreme Heat"] = "Suspicious" if winter_issues else "Good"
 
-    # Missing temperature data
+    # Missing dry bulb temperature
     missing_temps = dry_bulb_temp.isna().any()
     quality_checks["Missing Temperature Data"] = "Suspicious" if missing_temps else "Good"
 
     return quality_checks
+
+
+# def check_epw_quality(epw_path):
+#     """
+#     Perform quality checks on an EPW file and return a summary of whether each variable is 'Good' or 'Suspicious'.
+    
+#     Parameters:
+#         epw_path (str): Path to the EPW file.
+    
+#     Returns:
+#         dict: Dictionary with quality check results for each tested variable.
+#     """
+
+#     epw_path = os.path.abspath(epw_path)
+
+#     print('==================')
+#     print(epw_path)
+#     # Read EPW file (skip header, start from line 9)
+#     epw_df = pd.read_csv(epw_path, skiprows=8, header=None)
+
+#     # Dictionary to store check results
+#     quality_checks = {}
+
+#     ### 1️⃣ Check for Missing Data ###
+#     missing_values = epw_df.isnull().sum().sum()
+#     quality_checks["Missing Data"] = "Suspicious" if missing_values > 0 else "Good"
+
+#     ### 2️⃣ Enhanced Dry Bulb Temperature Checks ###
+#     dry_bulb_temp = epw_df[6]
+#     month = epw_df[1]
+
+#     # Extreme values (-50°C to 60°C)
+#     extreme_values = ((dry_bulb_temp < -50) | (dry_bulb_temp > 60)).any()
+#     quality_checks["Extreme Temperature"] = "Suspicious" if extreme_values else "Good"
+
+#     # Sudden jumps (> 15°C per hour)
+#     temp_diff = dry_bulb_temp.diff().abs()
+#     rapid_jumps = (temp_diff > 15).any()
+#     quality_checks["Sudden Temp Jumps"] = "Suspicious" if rapid_jumps else "Good"
+
+#     # Constant temperature for more than 12 hours
+#     const_periods = (dry_bulb_temp.rolling(window=12, min_periods=1).std() == 0).any()
+#     quality_checks["Constant Temp Periods"] = "Suspicious" if const_periods else "Good"
+
+#     # Unrealistic day-night swings (<3°C or >30°C)
+#     epw_df["daily_max"] = dry_bulb_temp.groupby(epw_df[2]).transform("max")
+#     epw_df["daily_min"] = dry_bulb_temp.groupby(epw_df[2]).transform("min")
+#     epw_df["daily_range"] = epw_df["daily_max"] - epw_df["daily_min"]
+#     unrealistic_swings = ((epw_df["daily_range"] < 3) | (epw_df["daily_range"] > 30)).any()
+#     quality_checks["Day-Night Swings"] = "Suspicious" if unrealistic_swings else "Good"
+
+#     # Seasonal temperature mismatches
+#     summer_issues = ((month.isin([6, 7, 8])) & (dry_bulb_temp < 0)).any()  # Summer months with freezing temps
+#     winter_issues = ((month.isin([12, 1, 2])) & (dry_bulb_temp > 40)).any()  # Winter months with extreme heat
+#     quality_checks["Summer Freezing"] = "Suspicious" if summer_issues else "Good"
+#     quality_checks["Winter Extreme Heat"] = "Suspicious" if winter_issues else "Good"
+
+#     # Missing temperature data
+#     missing_temps = dry_bulb_temp.isna().any()
+#     quality_checks["Missing Temperature Data"] = "Suspicious" if missing_temps else "Good"
+
+#     return quality_checks
 
 def run_energyplus_simulations(epw_path):
     

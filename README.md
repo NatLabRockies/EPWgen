@@ -121,6 +121,39 @@ Latitude,Longitude,Location Name,Year
 **Output:**
 - EPW files saved to `outputs/[csv_filename]/`
 - Updated CSV with metadata saved to same folder
+- **Progress is saved after each successful download**
+- **Restart interrupted batch jobs**: If you restart, EPWgen will automatically detect the progress file and resume from where it left off, skipping already-downloaded locations
+
+**How Resume Works:**
+1. **First Run**: EPWgen reads your original CSV and creates `outputs/[csv_name]/[csv_name].csv`
+2. **Progress Saved**: After each successful EPW download, the CSV is updated with metadata
+3. **Restart**: If you run the same CSV again, EPWgen detects the existing progress file
+4. **Resume**: Loads from the progress file instead of the original CSV
+5. **Skip Completed**: Already-processed locations (with EPW files) are automatically skipped
+6. **Continue**: Only processes remaining locations
+
+**Example Workflow:**
+```
+Original CSV: locations.csv (100 locations)
+              ↓
+       Run CSV Batch Job
+              ↓
+    Downloads 40 EPW files → saves outputs/locations/locations.csv (40 rows with metadata)
+              ↓
+       [Process interrupted]
+              ↓
+       Run CSV Batch Job again (select same locations.csv)
+              ↓
+    EPWgen detects outputs/locations/locations.csv exists
+              ↓
+    Loads progress file (40 rows already have metadata)
+              ↓
+    Skips first 40 locations (EPW files exist)
+              ↓
+    Continues with location 41-100
+```
+
+This means you can safely interrupt and restart CSV batch jobs without losing progress!
 
 ### Data Sources:
 #### **MERRA-2**
@@ -216,8 +249,10 @@ Quality checks are **diagnostic tests** that flag potential anomalies for manual
 
 ## Features
 
+- **Incremental Progress Saving**: CSV progress saved after each successful EPW download
+- **Resume from Interruption**: Automatically resumes from existing progress file if batch job is restarted
 - **Skip Existing Files**: Automatically skips already-downloaded EPW files during batch processing
-- **Progress Tracking**: Saves CSV progress every 10 locations to prevent data loss
+- **Progress Tracking**: Never lose your work - all progress is continuously saved
 - **Comprehensive Metadata**: Detailed quality checks and station information
 - **Interactive Map**: View requested location vs. weather station location (individual mode)
 - **Clean Output**: Organized folder structure with all files in `outputs/` directory

@@ -274,12 +274,28 @@ class MainWindow(QWidget):
         
         file_type = 'AMY'  # Default file type
 
-        # Load the zip codes CSV file
-        try:
-            zipcodes = pd.read_csv(csv_file_path)
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to read CSV file:\n{str(e)}")
-            return
+        # Check if an updated CSV already exists in the output folder
+        # If so, load from that to resume progress. Otherwise, load the original CSV.
+        if os.path.isfile(updated_csv_path):
+            try:
+                zipcodes = pd.read_csv(updated_csv_path)
+                QMessageBox.information(
+                    self,
+                    "Resuming Progress",
+                    f"Found existing progress file in:\n{save_folder}\n\n"
+                    f"Resuming from previous session.\n"
+                    f"Already processed locations will be skipped."
+                )
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Failed to read existing progress file:\n{str(e)}")
+                return
+        else:
+            # Load the original CSV file
+            try:
+                zipcodes = pd.read_csv(csv_file_path)
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Failed to read CSV file:\n{str(e)}")
+                return
         
         # Remove old columns with year suffixes to clean up the CSV
         old_columns_patterns = [
@@ -418,10 +434,12 @@ class MainWindow(QWidget):
             zipcodes.at[index, 'Dewpoint_Holes'] = flags.get(7, '')
             zipcodes.at[index, 'RH_Holes'] = flags.get(8, '')
 
-            counter += 1
-            if counter % 10 == 0:
-                zipcodes.to_csv(updated_csv_path, index=False)
+            # Save CSV after each successful download to preserve progress
+            zipcodes.to_csv(updated_csv_path, index=False)
 
+            counter += 1
+
+        # Final save (in case last iteration was skipped)
         zipcodes.to_csv(updated_csv_path, index=False)
         
         QMessageBox.information(

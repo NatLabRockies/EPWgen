@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: epwgen
-Version: 1.0.0
+Version: 1.0.1
 Summary: A tool for generating EnergyPlus Weather (EPW) files from meteorological data
 Home-page: https://github.com/yourusername/EPWgen
 Author: Your Name
@@ -19,7 +19,7 @@ Requires-Dist: timezonefinder>=6.0.0
 Requires-Dist: pytz>=2023.0
 Requires-Dist: requests>=2.28.0
 Requires-Dist: openstudio>=3.5.0
-Requires-Dist: numpy>=1.24.0
+Requires-Dist: numpy<2.0,>=1.24.0
 Requires-Dist: isd>=0.3.0
 Requires-Dist: paramiko
 Requires-Dist: scp
@@ -111,6 +111,11 @@ epwgen
 
 ### Troubleshooting
 
+**Issue: Dependency conflict with pandas/isd**
+- EPWgen uses relaxed pandas version (>=1.3.0) to accommodate the `isd` package requirement
+- Installation will use pandas 1.5.3 with numpy 1.x for compatibility
+- This configuration has been tested and works reliably
+
 **Issue: PyQt5 installation hangs or fails**
 - Use conda to install PyQt5 first: `conda install -c conda-forge pyqt`
 - Then install EPWgen: `pip install -e .`
@@ -151,6 +156,18 @@ Latitude,Longitude,Location Name,Year
 **Output:**
 - EPW files saved to `outputs/[csv_filename]/`
 - Updated CSV with metadata saved to same folder
+- **Progress is saved after each successful download**
+- **Restart interrupted batch jobs**: If you restart, EPWgen will automatically detect the progress file and resume from where it left off, skipping already-downloaded locations
+
+**How Resume Works:**
+1. **First Run**: EPWgen reads your original CSV and creates `outputs/[csv_name]/[csv_name].csv`
+2. **Progress Saved**: After each successful EPW download, the CSV is updated with metadata
+3. **Restart**: If you run the same CSV again, EPWgen detects the existing progress file
+4. **Resume**: Loads from the progress file instead of the original CSV
+5. **Skip Completed**: Already-processed locations (with EPW files) are automatically skipped
+6. **Continue**: Only processes remaining locations
+
+This means you can safely interrupt and restart CSV batch jobs without losing progress!
 
 ### Data Sources:
 #### **MERRA-2**
@@ -246,8 +263,10 @@ Quality checks are **diagnostic tests** that flag potential anomalies for manual
 
 ## Features
 
+- **Incremental Progress Saving**: CSV progress saved after each successful EPW download
+- **Resume from Interruption**: Automatically resumes from existing progress file if batch job is restarted
 - **Skip Existing Files**: Automatically skips already-downloaded EPW files during batch processing
-- **Progress Tracking**: Saves CSV progress every 10 locations to prevent data loss
+- **Progress Tracking**: Never lose your work - all progress is continuously saved
 - **Comprehensive Metadata**: Detailed quality checks and station information
 - **Interactive Map**: View requested location vs. weather station location (individual mode)
 - **Clean Output**: Organized folder structure with all files in `outputs/` directory

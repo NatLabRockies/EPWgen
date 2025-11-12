@@ -1,4 +1,0 @@
-Latitude,Longitude,Location Name,Year,Station_WMO,Station_Latitude,Station_Longitude,Distance_Miles,Status,HDD_base65F,CDD_base65F,QC_Missing_Data,QC_Extreme_Temperature,QC_Sudden_Temp_Jumps,QC_Constant_Temp_Periods,QC_Day-Night_Swings,QC_Summer_Freezing,QC_Winter_Extreme_Heat,QC_Missing_Temperature_Data,Temp_Holes,Dewpoint_Holes,RH_Holes
-40.7128,-74.006,New York,2022,KJRB0,40.7012,-74.009,0.816739601270834,True,4708,1251,Good,Good,Good,Good,Suspicious,Good,Good,Good,False,False,False
-34.0901,-118.4065,Beverly Hills,2022,72288,34.2,-118.3667,7.927083740746101,True,1094,2023,Good,Good,Good,Suspicious,Suspicious,Good,Good,Good,False,False,False
-41.8781,-87.6298,Chicago,2021,72534,41.7833,-87.75,9.010946210106361,True,5306,1398,Good,Good,Good,Suspicious,Suspicious,Good,Good,Good,False,False,False

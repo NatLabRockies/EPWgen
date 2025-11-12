@@ -1,0 +1,130 @@
+Metadata-Version: 2.1
+Name: epwgen
+Version: 1.0.0
+Summary: A tool for generating EnergyPlus Weather (EPW) files from meteorological data
+Home-page: https://github.com/yourusername/EPWgen
+Author: Your Name
+Author-email: your.email@example.com
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: folium>=0.14.0
+Requires-Dist: pandas>=2.0.0
+Requires-Dist: PyQt5>=5.15.0
+Requires-Dist: PyQtWebEngine>=5.15.0
+Requires-Dist: meteostat>=1.6.0
+Requires-Dist: timezonefinder>=6.0.0
+Requires-Dist: pytz>=2023.0
+Requires-Dist: requests>=2.28.0
+Requires-Dist: openstudio>=3.5.0
+Requires-Dist: numpy>=1.24.0
+
+# EPWgen - Enhanced Weather File Generation
+
+
+## Overview
+EPWgen is a tool designed to generate high-quality **EnergyPlus Weather (EPW) files** by integrating data from multiple reliable sources, improving accuracy, and addressing issues found in previous methods.
+
+### Data Sources:
+#### **MERRA-2**
+- Global dataset with data available everywhere, including **Alaska**
+- **Near real-time availability**
+- Provides **full EPWs** that act as the backbone
+- **EPWgen swaps in key variables**:
+  - **Tdb** (Dry Bulb Temperature)
+  - **Tdew** (Dew Point Temperature)
+  - **RH** (Relative Humidity)
+  - **P** (Pressure)
+  - **Wdir** (Wind Direction)
+  - **Wspeed** (Wind Speed)
+  - **Rain** (Precipitation)
+  - **Snow**
+
+#### **Meteostat**
+- Free, open-source library: [Meteostat Documentation](https://dev.meteostat.net/)
+- **Real-time data**
+- **Expanded coverage (~2700 locations vs. ~1200)**
+- **Data sources include**:
+  - **National Weather Service**
+  - **ISD (Global Dataset)**
+  - **SYNOP reports**
+  - **METAR reports**
+  - **MOSMIX model data** (used for gap filling)
+
+---
+
+## Data Processing Workflow
+
+1. **Find the closest Meteostat location** with < 3-hour data gaps.
+2. **Gather the EPW file** from MERRA-2 based on selected station coordinates.
+3. **Splice the two datasets** for enhanced accuracy.
+4. **Insert metadata header**, including ASHRAE **2021 design conditions** and **ground temperatures**.
+5. **Save the final EPW file** and output key metadata:
+   - **Station distance**
+   - **HDD/CDD (Heating & Cooling Degree Days)**
+   - **Extreme Temperature Quality Checks**
+
+
+---
+
+## File Metadata Description
+
+### **EPW_file_name_YEAR**
+Maps the EPW file name to the corresponding zip code.
+
+### **distance_location_station_miles_YEAR**
+Distance between the zip code centroid coordinates and the utilized weather station.
+
+### **weather_station_wmo_YEAR**
+Identifies the utilized weather station.
+
+### **hdd_base65F_YEAR**
+Heating Degree Days for the selected EPW.
+
+### **cdd_base65F_YEAR**
+Cooling Degree Days for the selected EPW.
+
+### **Tdb_holes_YEAR**
+If any time steps are missing in NOAA/measured data, **MERRA-2 data is used** to fill gaps. This flag indicates if MERRA-2 replacements were applied.
+
+### **Tdew_holes_YEAR**
+Same as above but for **Tdew**.
+
+### **RH_holes_YEAR**
+Same as above but for **Relative Humidity (RH)**.
+
+### **EnergyPlus Status**
+Checks if an **EnergyPlus simulation** was successfully executed to validate file correctness.
+
+### **Missing Data**
+Verifies whether the **final EPW file contains any NaN values**.
+
+---
+
+## **Extreme Temperature Quality Checks**
+These are **diagnostic tests** to identify anomalies in temperature data.  
+They do **not automatically discard files** but flag them for manual review if needed.
+
+- **Sudden Temperature Jumps**
+- **Constant Temperature Periods**
+- **Day-Night Temperature Swings**
+- **Summer Freezing Events**
+- **Winter Extreme Heat Events**
+- **Missing Temperature Data**
+
+---
+
+<!-- ## Future Improvements
+EPWgen is actively evolving, with planned enhancements including:
+- **Integration of TMY/GaTMY datasets**
+- **Option to choose between ERA5 vs. MERRA-2**
+- **Direct MERRA-2 data usage**
+- **Data visualization and statistical outputs**
+- **STAT file and/or DDYs creation**
+- **Support for 2013 ASHRAE design conditions**
+- **Search by FIP code or ZIP code**
+- **Additional user-suggested features**
+
+--- -->

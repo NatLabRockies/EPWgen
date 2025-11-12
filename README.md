@@ -3,23 +3,90 @@
 ## Overview
 EPWgen is a GUI tool designed to generate high-quality **EnergyPlus Weather (EPW) files** by integrating data from multiple reliable sources, improving accuracy, and addressing issues found in previous methods.
 
+## Quick Start
+
+For the fastest installation, use the automated script:
+
+```bash
+cd /path/to/EPWgen
+./install.sh
+```
+
+Then run:
+```bash
+conda activate epwgen
+epwgen
+```
+
 ## Installation
 
-### Quick Install
+### Option 1: Recommended - Create a dedicated conda environment
+
+This is the most reliable method that works for everyone:
+
 ```bash
-pip install -e /path/to/EPWgen
+# Create a new environment with Python 3.11
+conda create -n epwgen python=3.11 -y
+
+# Activate the environment
+conda activate epwgen
+
+# Install EPWgen from the repository directory
+cd /path/to/EPWgen
+pip install -e .
 ```
 
-### Run the Application
+### Option 2: Install from GitHub (for users without the repository)
+
 ```bash
-epwgen
+# Create a new environment
+conda create -n epwgen python=3.11 -y
+conda activate epwgen
+
+# Install directly from GitHub
+pip install git+https://github.com/yourusername/EPWgen.git
 ```
 
-Or if using a conda environment:
+### Option 3: Use existing Python environment
+
+If you already have a Python environment with PyQt5:
+
 ```bash
+# Activate your environment
 conda activate your_environment
+
+# Navigate to the EPWgen directory
+cd /path/to/EPWgen
+
+# Install
+pip install -e .
+```
+
+### Running EPWgen
+
+After installation:
+
+```bash
+# Activate the environment (if not already activated)
+conda activate epwgen
+
+# Run the application
 epwgen
 ```
+
+### Troubleshooting
+
+**Issue: PyQt5 installation hangs or fails**
+- Use conda to install PyQt5 first: `conda install -c conda-forge pyqt`
+- Then install EPWgen: `pip install -e .`
+
+**Issue: "epwgen: command not found"**
+- Make sure you've activated the correct environment: `conda activate epwgen`
+- Reinstall: `pip install -e . --force-reinstall`
+
+**Issue: Import errors**
+- Ensure all dependencies are installed: `pip install -r requirements.txt` (if available)
+- Or install manually: `pip install folium pandas PyQt5 PyQtWebEngine meteostat timezonefinder pytz requests openstudio`
 
 ## Usage Modes
 

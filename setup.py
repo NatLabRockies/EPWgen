@@ -21,7 +21,7 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         "folium>=0.14.0",
-        "pandas>=2.0.0",
+        "pandas>=1.3.0",  # Relaxed to accommodate isd package requirement
         "PyQt5>=5.15.0",
         "PyQtWebEngine>=5.15.0",
         "meteostat>=1.6.0",
@@ -29,7 +29,10 @@ setup(
         "pytz>=2023.0",
         "requests>=2.28.0",
         "openstudio>=3.5.0",
-        "numpy>=1.24.0",
+        "numpy>=1.24.0,<2.0",  # numpy 2.x incompatible with pandas 1.5.3
+        "isd>=0.3.0",
+        "paramiko",
+        "scp",
     ],
     entry_points={
         "console_scripts": [

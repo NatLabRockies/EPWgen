@@ -76,6 +76,11 @@ epwgen
 
 ### Troubleshooting
 
+**Issue: Dependency conflict with pandas/isd**
+- EPWgen uses relaxed pandas version (>=1.3.0) to accommodate the `isd` package requirement
+- Installation will use pandas 1.5.3 with numpy 1.x for compatibility
+- This configuration has been tested and works reliably
+
 **Issue: PyQt5 installation hangs or fails**
 - Use conda to install PyQt5 first: `conda install -c conda-forge pyqt`
 - Then install EPWgen: `pip install -e .`

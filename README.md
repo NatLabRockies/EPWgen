@@ -95,7 +95,7 @@ epwgen
 
 ## Usage Modes
 
-EPWgen provides three operational modes through an intuitive GUI:
+EPWgen provides four operational modes through an intuitive GUI:
 
 ### 1. Individual Location
 Generate an EPW file for a single location and year.
@@ -154,6 +154,39 @@ Original CSV: locations.csv (100 locations)
 ```
 
 This means you can safely interrupt and restart CSV batch jobs without losing progress!
+
+### 4. Download Metered Variables (NOAA Data Only)
+Download raw metered weather variables without EPW processing.
+- **Data Source**: NOAA/Meteostat only (no MERRA-2 integration)
+- **Output Format**: Single CSV file with raw hourly data
+- **Multi-Year Handling**: All years are combined into a single CSV file
+- **No Processing**: Data saved directly without EPW header or quality adjustments
+- Enter latitude, longitude, location name, start year, and end year
+- If start year equals end year, downloads data for a single year only
+- **Single year**: Saved as `LocationName_YEAR_metered.csv`
+- **Multiple years**: Saved as `LocationName_STARTYEAR-ENDYEAR_metered.csv` (e.g., `New_York_2020-2022_metered.csv`)
+- All files saved to `outputs/` folder
+- **Use Case**: For users who need raw measured data for custom processing or analysis
+
+**Example Output:**
+The CSV file will contain hourly data with columns like:
+- Temperature (temp)
+- Dew Point (dwpt)
+- Relative Humidity (rhum)
+- Precipitation (prcp)
+- Wind Speed (wspd)
+- Wind Direction (wdir)
+- Pressure (pres)
+- And other available meteorological variables from the NOAA station
+
+**Example for multi-year download:**
+```
+Location: New York
+Years: 2020-2022
+Output: New_York_2020-2022_metered.csv
+Contains: ~26,280 hourly records (3 years × 8,760 hours/year)
+Datetime index spans from 2020-01-01 00:00:00 to 2022-12-31 23:00:00
+```
 
 ### Data Sources:
 #### **MERRA-2**

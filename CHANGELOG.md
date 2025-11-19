@@ -1,5 +1,23 @@
 # EPWgen Changelog
 
+## [1.1.0] - 2025-11-13
+
+### Added
+- **New Mode: Download Metered Variables (NOAA Data Only)**
+  - Fourth operational mode for downloading raw NOAA/Meteostat weather data
+  - No EPW processing or MERRA-2 integration - pure measured data
+  - Outputs raw hourly dataframe directly as CSV
+  - Supports single year or multi-year downloads
+  - **Multi-year data combined into single CSV file**
+  - Single year: `LocationName_YEAR_metered.csv`
+  - Multiple years: `LocationName_STARTYEAR-ENDYEAR_metered.csv`
+  - Useful for custom analysis and processing workflows
+
+### Changed
+- Updated main GUI to include fourth button for metered variables download
+- Added `MeteredVariablesDialog` for collecting location and year range input
+- Multi-year downloads now combine all years into a single file instead of separate files
+
 ## [1.0.1] - 2025-11-12
 
 ### Added

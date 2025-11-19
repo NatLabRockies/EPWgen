@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: epwgen
-Version: 1.0.1
+Version: 1.1.0
 Summary: A tool for generating EnergyPlus Weather (EPW) files from meteorological data
 Home-page: https://github.com/yourusername/EPWgen
 Author: Your Name
@@ -130,7 +130,7 @@ epwgen
 
 ## Usage Modes
 
-EPWgen provides three operational modes through an intuitive GUI:
+EPWgen provides four operational modes through an intuitive GUI:
 
 ### 1. Individual Location
 Generate an EPW file for a single location and year.
@@ -167,7 +167,49 @@ Latitude,Longitude,Location Name,Year
 5. **Skip Completed**: Already-processed locations (with EPW files) are automatically skipped
 6. **Continue**: Only processes remaining locations
 
+**Example Workflow:**
+```
+Original CSV: locations.csv (100 locations)
+              ↓
+       Run CSV Batch Job
+              ↓
+    Downloads 40 EPW files → saves outputs/locations/locations.csv (40 rows with metadata)
+              ↓
+       [Process interrupted]
+              ↓
+       Run CSV Batch Job again (select same locations.csv)
+              ↓
+    EPWgen detects outputs/locations/locations.csv exists
+              ↓
+    Loads progress file (40 rows already have metadata)
+              ↓
+    Skips first 40 locations (EPW files exist)
+              ↓
+    Continues with location 41-100
+```
+
 This means you can safely interrupt and restart CSV batch jobs without losing progress!
+
+### 4. Download Metered Variables (NOAA Data Only)
+Download raw metered weather variables without EPW processing.
+- **Data Source**: NOAA/Meteostat only (no MERRA-2 integration)
+- **Output Format**: CSV file with raw hourly data
+- **No Processing**: Data saved directly without EPW header or quality adjustments
+- Enter latitude, longitude, location name, start year, and end year
+- If start year equals end year, downloads data for a single year only
+- Files saved as: `LocationName_YEAR_metered.csv` in `outputs/` folder
+- **Use Case**: For users who need raw measured data for custom processing or analysis
+
+**Example Output:**
+The CSV file will contain hourly data with columns like:
+- Temperature (temp)
+- Dew Point (dwpt)
+- Relative Humidity (rhum)
+- Precipitation (prcp)
+- Wind Speed (wspd)
+- Wind Direction (wdir)
+- Pressure (pres)
+- And other available meteorological variables from the NOAA station
 
 ### Data Sources:
 #### **MERRA-2**

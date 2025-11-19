@@ -46,16 +46,19 @@ class MainWindow(QWidget):
         self.button_individual = QPushButton("Retrieve weather data for an individual location")
         self.button_multi_year = QPushButton("Retrieve data for a single location over multiple years")
         self.button_csv = QPushButton("Retrieve data from CSV file list")
+        self.button_metered = QPushButton("Download metered variables (NOAA data only)")
 
         # Connect buttons to their respective actions
         self.button_individual.clicked.connect(self.open_individual_dialog)
         self.button_multi_year.clicked.connect(self.open_multi_year_dialog)
         self.button_csv.clicked.connect(self.run_csv_list)
+        self.button_metered.clicked.connect(self.open_metered_dialog)
 
         # Add buttons to layout
         layout.addWidget(self.button_individual)
         layout.addWidget(self.button_multi_year)
         layout.addWidget(self.button_csv)
+        layout.addWidget(self.button_metered)
 
         self.setLayout(layout)
 
@@ -114,7 +117,7 @@ class MainWindow(QWidget):
             # 3. Show a single dialog with text info + map including quality_checks and EnergyPlus status
             self.show_result_and_map(
                 retrieve_status, distance_mi, wmo, hdd, cdd,
-                lat, lon, lat_station, lon_station, quality_checks, 
+                lat, lon, lat_station, lon_station, quality_checks, flags
                 # status_EP
             )
 
@@ -166,12 +169,132 @@ class MainWindow(QWidget):
                     continue
 
                 quality_checks = check_epw_quality(epw_path)
+                
+                # Report NOAA data gaps
+                if flags:
+                    var_names = {6: 'Temp', 7: 'Dewpt', 8: 'RH', 9: 'Pres', 
+                                20: 'Wdir', 21: 'Wspd', 30: 'Snow', 33: 'Prcp'}
+                    gap_report = []
+                    for col_num, name in var_names.items():
+                        if col_num in flags:
+                            info = flags[col_num]
+                            total = info.get('original_holes', 0)
+                            if total > 0:
+                                interp = info.get('interpolated', 0)
+                                merra2 = info.get('filled_merra2', 0)
+                                gap_report.append(f"{name}:{total}(i:{interp},m:{merra2})")
+                    
+                    if gap_report:
+                        print(f"  NOAA gaps: {', '.join(gap_report)}")
+                
                 print(f"✓ Completed year {year}: {retrieve_status}")
 
             print(f"All years from {start_year} to {end_year} have been processed.")
 
+    def open_metered_dialog(self):
+        # Create dialog for metered variables input
+        dialog = MeteredVariablesDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            lat, lon, location_name, start_year, end_year = dialog.get_values()
+
+            # Create outputs folder in the script directory
+            outputs_folder = os.path.join(SCRIPT_DIR, "outputs")
+            os.makedirs(outputs_folder, exist_ok=True)
+
+            # List to store all dataframes for combining
+            all_data = []
+            station_info = {}
+
+            # Loop through each year in the range (or single year if start==end)
+            for year in range(start_year, end_year + 1):
+                print(f"Downloading metered variables for {location_name}, year {year}...")
+                
+                # Call get_data_noaa to retrieve NOAA data
+                (data, timezone, elevation, wmo, station_name, state, country, 
+                 latitude_station, longitude_station, epw_exists, incomplete_timeseries) = get_data_noaa(lat, lon, year, outputs_folder)
+                
+                if epw_exists:
+                    print(f"⚠️ EPW already exists for year {year}, skipping...")
+                    continue
+                
+                if incomplete_timeseries:
+                    print(f"❌ Incomplete timeseries for year {year}, cannot proceed")
+                    QMessageBox.warning(
+                        self,
+                        "Incomplete Data",
+                        f"Could not find complete NOAA data for {location_name} in {year}.\n"
+                        f"Data has too many gaps or is insufficient."
+                    )
+                    continue
+                
+                if isinstance(data, pd.DataFrame) and not data.empty:
+                    # Store the dataframe for later combining
+                    all_data.append(data)
+                    
+                    # Store station info (from the first successful download)
+                    if not station_info:
+                        station_info = {
+                            'station_name': station_name,
+                            'wmo': wmo,
+                            'latitude': latitude_station,
+                            'longitude': longitude_station,
+                            'elevation': elevation,
+                            'timezone': timezone
+                        }
+                    
+                    print(f"✓ Retrieved data for year {year}")
+                    print(f"  Station: {station_name} (WMO: {wmo})")
+                    print(f"  Location: {latitude_station}, {longitude_station}")
+                    print(f"  Elevation: {elevation}m, Timezone: {timezone}")
+                else:
+                    print(f"❌ No data retrieved for year {year}")
+            
+            # Combine all dataframes and save as a single CSV
+            if all_data:
+                # Concatenate all dataframes
+                combined_data = pd.concat(all_data, axis=0)
+                
+                # Sort by datetime index
+                combined_data = combined_data.sort_index()
+                
+                # Create filename based on year range
+                if start_year == end_year:
+                    csv_filename = f"{location_name.replace(' ', '_').replace('.', '_')}_{start_year}_metered.csv"
+                else:
+                    csv_filename = f"{location_name.replace(' ', '_').replace('.', '_')}_{start_year}-{end_year}_metered.csv"
+                
+                csv_path = os.path.join(outputs_folder, csv_filename)
+                
+                # Save combined data to CSV with datetime index
+                combined_data.to_csv(csv_path, index=True)
+                
+                print(f"\n✓ Combined data saved to: {csv_path}")
+                print(f"  Total records: {len(combined_data)}")
+                print(f"  Date range: {combined_data.index.min()} to {combined_data.index.max()}")
+                
+                # Show completion message
+                if start_year == end_year:
+                    message = f"Metered variables downloaded for {location_name} ({start_year})"
+                else:
+                    message = f"Metered variables downloaded for {location_name}\nYears: {start_year} to {end_year}\n\nAll years combined into single file"
+                
+                QMessageBox.information(
+                    self,
+                    "Download Complete",
+                    f"{message}\n\nFile saved to:\n{csv_path}\n\n"
+                    f"Total records: {len(combined_data)}\n"
+                    f"Station: {station_info.get('station_name', 'N/A')} (WMO: {station_info.get('wmo', 'N/A')})"
+                )
+            else:
+                QMessageBox.warning(
+                    self,
+                    "No Data",
+                    f"No data could be retrieved for {location_name}\n"
+                    f"Years: {start_year} to {end_year}"
+                )
+
     # def show_result_and_map(self, status, distance_mi, wmo, hdd, cdd, lat, lon, lat_station, lon_station, quality_checks, status_EP):
-    def show_result_and_map(self, status, distance_mi, wmo, hdd, cdd, lat, lon, lat_station, lon_station, quality_checks):
+    def show_result_and_map(self, status, distance_mi, wmo, hdd, cdd, lat, lon, lat_station, lon_station, quality_checks, flags):
         """
         Create a dialog that displays textual info at the top (split into two columns)
         and a map at the bottom.
@@ -189,11 +312,36 @@ class MainWindow(QWidget):
         info_layout = QHBoxLayout()
 
         # Left column: General information including EnergyPlus status, with bold formatting for the label.
+        # Add NOAA data gaps info
+        gaps_info = "<b>NOAA Data Gaps:</b><br>"
+        if flags:
+            # Map column numbers to readable names
+            var_names = {6: 'Temperature', 7: 'Dew Point', 8: 'Rel. Humidity', 
+                        9: 'Pressure', 20: 'Wind Dir', 21: 'Wind Speed', 
+                        30: 'Snow', 33: 'Precipitation'}
+            
+            has_gaps = False
+            for col_num, name in var_names.items():
+                if col_num in flags:
+                    info = flags[col_num]
+                    total = info.get('original_holes', 0)
+                    if total > 0:
+                        has_gaps = True
+                        interp = info.get('interpolated', 0)
+                        merra2 = info.get('filled_merra2', 0)
+                        gaps_info += f"{name}: {total} hrs (Interp: {interp}, MERRA2: {merra2})<br>"
+            
+            if not has_gaps:
+                gaps_info += "No gaps - complete NOAA data<br>"
+        else:
+            gaps_info += "No data<br>"
+        
         general_info_text = (
             f"Distance: {distance_mi.round(2)} mi<br>"
             f"WMO: {wmo}<br>"
             f"HDD: {hdd}<br>"
             f"CDD: {cdd}<br><br>"
+            f"{gaps_info}"
             # f"<b>EnergyPlus Status:</b><br>{status_EP}"
         )
         general_info_label = QLabel()
@@ -422,17 +570,26 @@ class MainWindow(QWidget):
                     zipcodes[column_name] = ''
                 zipcodes.at[index, column_name] = check_result
             
-            # Add flags for data holes (no year suffix)
-            if 'Temp_Holes' not in zipcodes.columns:
-                zipcodes['Temp_Holes'] = ''
-            if 'Dewpoint_Holes' not in zipcodes.columns:
-                zipcodes['Dewpoint_Holes'] = ''
-            if 'RH_Holes' not in zipcodes.columns:
-                zipcodes['RH_Holes'] = ''
+            # Add flags for data holes - now tracking all variables with detail
+            gap_columns = {
+                6: 'Temp', 7: 'Dewpoint', 8: 'RH', 9: 'Pressure',
+                20: 'WindDir', 21: 'WindSpeed', 30: 'Snow', 33: 'Precipitation'
+            }
+            
+            for col_num, var_name in gap_columns.items():
+                # Initialize columns if they don't exist
+                if f'{var_name}_Total_Holes' not in zipcodes.columns:
+                    zipcodes[f'{var_name}_Total_Holes'] = ''
+                if f'{var_name}_Interpolated' not in zipcodes.columns:
+                    zipcodes[f'{var_name}_Interpolated'] = ''
+                if f'{var_name}_MERRA2_Fill' not in zipcodes.columns:
+                    zipcodes[f'{var_name}_MERRA2_Fill'] = ''
                 
-            zipcodes.at[index, 'Temp_Holes'] = flags.get(6, '')
-            zipcodes.at[index, 'Dewpoint_Holes'] = flags.get(7, '')
-            zipcodes.at[index, 'RH_Holes'] = flags.get(8, '')
+                # Fill values if available in flags
+                if col_num in flags and isinstance(flags[col_num], dict):
+                    zipcodes.at[index, f'{var_name}_Total_Holes'] = flags[col_num].get('original_holes', 0)
+                    zipcodes.at[index, f'{var_name}_Interpolated'] = flags[col_num].get('interpolated', 0)
+                    zipcodes.at[index, f'{var_name}_MERRA2_Fill'] = flags[col_num].get('filled_merra2', 0)
 
             # Save CSV after each successful download to preserve progress
             zipcodes.to_csv(updated_csv_path, index=False)
@@ -544,6 +701,54 @@ class MultiYearLocationDialog(QDialog):
             int(self.end_year_input.text()),
             self.save_folder_input.text(),
             self.file_type_input.text()
+        )
+
+class MeteredVariablesDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setWindowTitle("Download Metered Variables (NOAA Data Only)")
+        self.form_layout = QFormLayout()
+
+        # Default values
+        self.lat_input = QLineEdit("40.7128")
+        self.lon_input = QLineEdit("-74.0060")
+        self.location_name_input = QLineEdit("New_York")
+        self.start_year_input = QLineEdit("2022")
+        self.end_year_input = QLineEdit("2022")
+
+        # Add widgets to form layout
+        self.form_layout.addRow("Latitude:", self.lat_input)
+        self.form_layout.addRow("Longitude:", self.lon_input)
+        self.form_layout.addRow("Location Name:", self.location_name_input)
+        self.form_layout.addRow("Start Year:", self.start_year_input)
+        self.form_layout.addRow("End Year:", self.end_year_input)
+
+        # Add help text
+        help_label = QLabel(
+            "<i>Note: If start and end year are the same, data for one year will be downloaded.<br>"
+            "Data will be saved as CSV without EPW processing.</i>"
+        )
+        help_label.setWordWrap(True)
+        self.form_layout.addRow("", help_label)
+
+        self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+
+        # Set layout
+        layout = QVBoxLayout()
+        layout.addLayout(self.form_layout)
+        layout.addWidget(self.button_box)
+        self.setLayout(layout)
+
+    def get_values(self):
+        return (
+            float(self.lat_input.text()),
+            float(self.lon_input.text()),
+            self.location_name_input.text(),
+            int(self.start_year_input.text()),
+            int(self.end_year_input.text())
         )
 
 class CSVFormatHelpDialog(QDialog):

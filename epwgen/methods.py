@@ -236,7 +236,7 @@ def filter_dataframe_by_date(df, start_date, end_date, timezone=None):
 
 def get_parameters_MERRA2(lat, lon, year):
     api_endpoint = f"https://power.larc.nasa.gov/api/temporal/hourly/point?community=SB&parameters=&longitude={lon}&latitude={lat}&start={year}0101&end={year}1231&format=EPW"
-    response = requests.get(api_endpoint)
+    response = requests.get(api_endpoint, timeout=30)
     csv_data = io.StringIO(response.text)
     df = pd.read_csv(csv_data, skiprows=8, header=None)
     header = '\n'.join(response.text.splitlines()[:8])
@@ -270,35 +270,69 @@ def merge_data(df, data):
     if data['pres'].mean() != 0 and df[9].mean() >= 10 * data['pres'].mean():
         data['pres'] = data['pres'] * 100
 
-    # Initialize flags for columns 6, 7, and 8.
-    flags = {6: False, 7: False, 8: False}
+    # Initialize flags for ALL columns - tracking count of filled hours
+    flags = {df_col: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0} 
+             for df_col in columns_to_process.keys()}
+    
+    # Track total holes filled across all variables
+    fill_summary = {}
 
     for df_col, data_key in columns_to_process.items():
         # Get the new values from data
-        new_values = data[data_key]
+        new_values = data[data_key].copy()
        
-        # Adjust the length of new_values to match df.
+        # Adjust the length of new_values to match df by reindexing to df's datetime index
         if len(new_values) != len(df):
             if len(new_values) < len(df):
-                # Reindex to the df index (or range) so missing timesteps become NaN.
-                new_values = new_values.reindex(range(len(df)))
-                # print(f"Data for key '{data_key}' was shorter than df; missing timesteps filled with NaN.")
+                # Reindex to the df's datetime index so missing timesteps become NaN
+                new_values = new_values.reindex(df.index)
+                print(f"⚠️  Data for key '{data_key}' was shorter than df ({len(data[data_key])} vs {len(df)}); missing timesteps filled with NaN.")
             else:
                 raise ValueError(f"There is something wrong in column {df_col} of MERRA2 data. Stopping execution.")
 
-
-
-        # If processing one of the flagged columns, check for any holes (NaN values)
-        if df_col in flags:
-            # If any timestep in new_values is NaN, mark the flag as True.
-            if new_values.isna().any():
-                flags[df_col] = True
+        # Count original holes
+        original_holes = new_values.isna().sum()
+        flags[df_col]['original_holes'] = original_holes
+        
+        if original_holes > 0:
+            # Step 1: Try to interpolate small gaps (≤3 hours)
+            # Create a copy to track what gets interpolated
+            before_interpolation = new_values.copy()
+            
+            # Use pandas interpolate with limit of 3 (max 3 consecutive NaNs to interpolate)
+            new_values = new_values.interpolate(method='linear', limit=3, limit_area='inside')
+            
+            # Count how many holes were filled by interpolation
+            interpolated_count = before_interpolation.isna().sum() - new_values.isna().sum()
+            flags[df_col]['interpolated'] = interpolated_count
+            
+            # Step 2: Remaining holes will be filled with MERRA2
+            remaining_holes = new_values.isna().sum()
+            flags[df_col]['filled_merra2'] = remaining_holes
+            
+            # Track summary
+            fill_summary[data_key] = {
+                'total': original_holes,
+                'interpolated': interpolated_count,
+                'merra2': remaining_holes
+            }
 
       
-        # Replace values in df: where new_values is NaN, retain the original value.
+        # Replace values in df: where new_values is NaN, retain the original MERRA2 value
+        # Both df and new_values should now have the same datetime index, so direct assignment works
         df[df_col] = new_values.where(new_values.notna(), df[df_col])
+    
+    # Print summary of holes filled
+    if fill_summary:
+        print(f"\n📊 NOAA data gaps handling:")
+        print(f"   {'Variable':<12} {'Total':>6} {'Interpolated':>12} {'MERRA2 Fill':>12}")
+        print(f"   {'-'*12} {'-'*6} {'-'*12} {'-'*12}")
+        for var, counts in fill_summary.items():
+            print(f"   {var:<12} {counts['total']:>6} {counts['interpolated']:>12} {counts['merra2']:>12}")
+        print()
 
     # Return both the modified DataFrame and the flags dictionary.
+    return df, flags
     return df, flags
 
 def check_missing_hours(year, df):
@@ -328,12 +362,15 @@ def add_datetime_index(df_merra2):
 
     return df_merra2
 
-def get_noaa_merra2_data(lat, lon, year, file_type, save_folder):
+def get_noaa_merra2_data(lat, lon, year, file_type, save_folder, save_name='DEBUG'):
     """
     Retrieves NOAA and MERRA2 data for a specific location and year.
     """
     retrieve_status = True
-    data_noaa, tz, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists, incomplete_timeseries = get_data_noaa(lat, lon, year, save_folder)
+    try:
+        data_noaa, tz, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists, incomplete_timeseries = get_data_noaa(lat, lon, year, save_folder)
+    except (ConnectionError, OSError, Exception) as e:
+        raise ValueError(f"Failed to download NOAA data: {str(e)}")
     # data_noaa, tz, distance, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists, incomplete_timeseries = get_data_noaa(lat, lon, year, save_folder)
     if epw_exists:
         df_merged = ''
@@ -396,16 +433,20 @@ def get_noaa_merra2_data(lat, lon, year, file_type, save_folder):
     hdd, cdd = calculate_hdd_cdd(data_noaa_tz_adj_h_interpolated, 'temp')
     try:
         df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
-    except EmptyDataError:
+    except (EmptyDataError, requests.exceptions.Timeout, requests.exceptions.RequestException) as e:
         try:
+            print(f"⚠️  Retrying MERRA2 download (attempt 2/5)...")
             df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
-        except EmptyDataError:
+        except (EmptyDataError, requests.exceptions.Timeout, requests.exceptions.RequestException):
             try:
+                print(f"⚠️  Retrying MERRA2 download (attempt 3/5)...")
                 df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
-            except EmptyDataError:
+            except (EmptyDataError, requests.exceptions.Timeout, requests.exceptions.RequestException):
                 try:
+                    print(f"⚠️  Retrying MERRA2 download (attempt 4/5)...")
                     df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
-                except EmptyDataError:
+                except (EmptyDataError, requests.exceptions.Timeout, requests.exceptions.RequestException):
+                    print(f"⚠️  Retrying MERRA2 download (attempt 5/5)...")
                     df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
 
 
@@ -417,8 +458,37 @@ def get_noaa_merra2_data(lat, lon, year, file_type, save_folder):
     # data_noaa_tz_adj_h_interpolated = data_noaa_tz_adj_h_interpolated[data_noaa_tz_adj_h_interpolated.index.year == year]
     data_noaa_tz_adj_h_interpolated = data_noaa_tz_adj_h_interpolated.iloc[1:]
 
+    # DEBUG: Save intermediate data for debugging only when in debug folder
+    if 'debug' in save_folder.lower():
+        debug_merra2_path = os.path.join(save_folder, f'{save_name}_MERRA2_before_merge_{year}.csv')
+        debug_noaa_path = os.path.join(save_folder, f'{save_name}_NOAA_before_merge_{year}.csv')
+        
+        print(f"🔍 DEBUG: Saving MERRA2 data to: {debug_merra2_path}")
+        df_merra2.to_csv(debug_merra2_path, index=True)
+        print(f"   - Shape: {df_merra2.shape}")
+        print(f"   - Columns: {df_merra2.columns.tolist()}")
+        print(f"   - Null values: {df_merra2.isnull().sum().sum()}")
+        
+        print(f"🔍 DEBUG: Saving NOAA data to: {debug_noaa_path}")
+        data_noaa_tz_adj_h_interpolated.to_csv(debug_noaa_path, index=True)
+        print(f"   - Shape: {data_noaa_tz_adj_h_interpolated.shape}")
+        print(f"   - Columns: {data_noaa_tz_adj_h_interpolated.columns.tolist()}")
+        print(f"   - Null values: {data_noaa_tz_adj_h_interpolated.isnull().sum().sum()}")
+
     #Merge the 2 datasets
     [df_merged, flags] = merge_data(df_merra2, data_noaa_tz_adj_h_interpolated)
+
+    # DEBUG: Save merged data for debugging only when in debug folder
+    if 'debug' in save_folder.lower():
+        debug_merged_path = os.path.join(save_folder, f'{save_name}_MERGED_after_merge_{year}.csv')
+        print(f"🔍 DEBUG: Saving merged data to: {debug_merged_path}")
+        df_merged.to_csv(debug_merged_path, index=False)
+        print(f"   - Shape: {df_merged.shape}")
+        print(f"   - Null values per column:")
+        for col in df_merged.columns:
+            null_count = df_merged[col].isnull().sum()
+            if null_count > 0:
+                print(f"     Column {col}: {null_count} null values")
 
     # Check for empty cells in df_merged
     if df_merged.isnull().any().any():
@@ -432,8 +502,12 @@ def run_individual_location(lat, lon, year, file_type, save_folder, save_name):
     """
     Processes a single location, fetching data and handling errors.
     """
-    # data_meteostat_merra2, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists = get_noaa_merra2_data(lat, lon, year, file_type, save_folder)
-    data_meteostat_merra2, retrieve_status, info_dict, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists, flags = get_noaa_merra2_data(lat, lon, year, file_type, save_folder)
+    try:
+        # data_meteostat_merra2, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists = get_noaa_merra2_data(lat, lon, year, file_type, save_folder, save_name)
+        data_meteostat_merra2, retrieve_status, info_dict, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists, flags = get_noaa_merra2_data(lat, lon, year, file_type, save_folder, save_name)
+    except ValueError as e:
+        print(f"⚠️  Skipping location ({lat}, {lon}): {str(e)}")
+        return False, '', '', '', '', '', False, {}
     
     if epw_exists:
         retrieve_status = False

@@ -322,17 +322,9 @@ def merge_data(df, data):
         # Both df and new_values should now have the same datetime index, so direct assignment works
         df[df_col] = new_values.where(new_values.notna(), df[df_col])
     
-    # Print summary of holes filled
-    if fill_summary:
-        print(f"\n📊 NOAA data gaps handling:")
-        print(f"   {'Variable':<12} {'Total':>6} {'Interpolated':>12} {'MERRA2 Fill':>12}")
-        print(f"   {'-'*12} {'-'*6} {'-'*12} {'-'*12}")
-        for var, counts in fill_summary.items():
-            print(f"   {var:<12} {counts['total']:>6} {counts['interpolated']:>12} {counts['merra2']:>12}")
-        print()
+    # Don't print summary - this is returned via flags for display in GUI or CSV
 
     # Return both the modified DataFrame and the flags dictionary.
-    return df, flags
     return df, flags
 
 def check_missing_hours(year, df):

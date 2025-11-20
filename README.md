@@ -234,35 +234,76 @@ Datetime index spans from 2020-01-01 00:00:00 to 2022-12-31 23:00:00
 When processing CSV files, the following columns are added to track data quality and station information:
 
 ### **Status**
-Indicates whether the EPW file was successfully retrieved.
+Indicates whether the EPW file was successfully retrieved. Used with EPW file existence to determine if processing is complete.
+- **TRUE**: EPW file successfully generated
+- **FALSE or empty**: Download failed or incomplete
 
 ### **Distance_Miles**
-Distance between the requested location and the utilized weather station.
+Distance in miles between the requested location and the actual weather station used for measured data.
 
 ### **Station_WMO**
-WMO code identifying the weather station used.
+WMO (World Meteorological Organization) code identifying the weather station used for NOAA/Meteostat data.
 
 ### **Station_Latitude** / **Station_Longitude**
-Coordinates of the weather station.
+Geographic coordinates of the weather station that provided measured data.
 
 ### **HDD_base65F** / **CDD_base65F**
-Heating and Cooling Degree Days (base 65°F) for the generated EPW.
+Heating Degree Days and Cooling Degree Days calculated with base temperature of 65°F for the generated EPW.
 
-### **Temp_Holes** / **Dewpoint_Holes** / **RH_Holes**
-Flags indicating if MERRA-2 data was used to fill gaps in measured data for:
-- **Temp_Holes**: Dry bulb temperature
-- **Dewpoint_Holes**: Dew point temperature  
-- **RH_Holes**: Relative Humidity
+### **Data Quality Tracking (per variable)**
+For each of 8 weather variables, three columns track data sources and gap-filling:
+
+**Temperature (Temp_*):**
+- `Temp_Total_Holes`: Number of missing hours in original NOAA data
+- `Temp_Interpolated`: Hours filled using linear interpolation (for gaps ≤3 hours)
+- `Temp_MERRA2_Fill`: Hours filled using MERRA-2 satellite data (for gaps >3 hours)
+
+**Dew Point (Dewpoint_*):**
+- `Dewpoint_Total_Holes`: Original missing hours
+- `Dewpoint_Interpolated`: Interpolated hours
+- `Dewpoint_MERRA2_Fill`: MERRA-2 filled hours
+
+**Relative Humidity (RH_*):**
+- `RH_Total_Holes`: Original missing hours
+- `RH_Interpolated`: Interpolated hours
+- `RH_MERRA2_Fill`: MERRA-2 filled hours
+
+**Pressure (Pressure_*):**
+- `Pressure_Total_Holes`: Original missing hours
+- `Pressure_Interpolated`: Interpolated hours
+- `Pressure_MERRA2_Fill`: MERRA-2 filled hours
+
+**Wind Direction (WindDir_*):**
+- `WindDir_Total_Holes`: Original missing hours
+- `WindDir_Interpolated`: Interpolated hours
+- `WindDir_MERRA2_Fill`: MERRA-2 filled hours
+
+**Wind Speed (WindSpeed_*):**
+- `WindSpeed_Total_Holes`: Original missing hours
+- `WindSpeed_Interpolated`: Interpolated hours
+- `WindSpeed_MERRA2_Fill`: MERRA-2 filled hours
+
+**Snow Depth (Snow_*):**
+- `Snow_Total_Holes`: Original missing hours (typically all hours, as snow is rarely measured)
+- `Snow_Interpolated`: Interpolated hours
+- `Snow_MERRA2_Fill`: MERRA-2 filled hours
+
+**Precipitation (Precipitation_*):**
+- `Precipitation_Total_Holes`: Original missing hours
+- `Precipitation_Interpolated`: Interpolated hours
+- `Precipitation_MERRA2_Fill`: MERRA-2 filled hours
+
+**Note**: EPWgen prioritizes measured data from NOAA/Meteostat. For small gaps (≤3 hours), linear interpolation is used. For larger gaps or unavailable variables (like snow depth), MERRA-2 satellite/model data fills the gaps.
 
 ### **Quality Check Columns (QC_*)**
-Multiple diagnostic columns identifying potential data anomalies:
+Diagnostic columns identifying potential data anomalies for manual review:
 - **QC_Missing_Data**: Checks for NaN values in the final EPW
 - **QC_Extreme_Temperature**: Flags temperatures outside -50°C to 60°C
 - **QC_Sudden_Temp_Jumps**: Detects temperature changes > 15°C per hour
 - **QC_Constant_Temp_Periods**: Identifies periods with no temperature variation
 - **QC_Day-Night_Swings**: Flags unrealistic daily temperature ranges
-- **QC_Summer_Freezing**: Detects freezing temperatures in summer months
-- **QC_Winter_Extreme_Heat**: Identifies extreme heat in winter months
+- **QC_Summer_Freezing**: Detects freezing temperatures in summer months (Northern Hemisphere)
+- **QC_Winter_Extreme_Heat**: Identifies extreme heat in winter months (Northern Hemisphere)
 - **QC_Missing_Temperature_Data**: Checks for missing temperature values
 
 ---

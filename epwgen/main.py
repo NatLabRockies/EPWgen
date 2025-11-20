@@ -521,10 +521,21 @@ class MainWindow(QWidget):
             epw_filename = f"{save_name.replace(' ', '_').replace('.', '_')}_{year}.epw"
             epw_path = os.path.join(save_folder, epw_filename)
             
-            if os.path.isfile(epw_path):
-                print(f"Skipping {location_name} ({year}) - EPW file already exists")
+            # Check both: EPW file exists AND Status column is not empty/False
+            status_value = row.get('Status', '')
+            epw_exists = os.path.isfile(epw_path)
+            has_valid_status = status_value and str(status_value).strip() and str(status_value).strip().lower() not in ['false', 'nan', '']
+            
+            if epw_exists and has_valid_status:
+                print(f"Skipping {location_name} ({year}) - Already processed (EPW exists and Status is True)")
                 counter += 1
                 continue
+            elif epw_exists and not has_valid_status:
+                print(f"Reprocessing {location_name} ({year}) - EPW exists but Status is False/empty")
+            elif not epw_exists and has_valid_status:
+                print(f"Processing {location_name} ({year}) - Status is True but EPW file missing")
+            else:
+                print(f"Processing {location_name} ({year}) - New location")
 
             # Retrieve data for the current location
             (

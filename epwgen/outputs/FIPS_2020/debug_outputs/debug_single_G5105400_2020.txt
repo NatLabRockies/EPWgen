@@ -1,0 +1,51 @@
+=== EPWgen Debug Log - 2025-12-10 12:13:38.182061 ===
+
+[12:13:38] [INFO] 
+============================================================
+[12:13:38] [INFO]   Single-row CSV Debug
+[12:13:38] [INFO] ============================================================
+
+[12:13:38] [DATA]   CSV Path: /Users/cbianchi/Documents/GitHub/EPWgen/epwgen/outputs/FIPS_2020/FIPS_2020.csv
+[12:13:38] [DATA]   Output Dir: /Users/cbianchi/Documents/GitHub/EPWgen/epwgen/outputs/FIPS_2020/debug_outputs
+[12:13:38] [INFO] 
+============================================================
+[12:13:38] [INFO]   Testing: G5105400
+[12:13:38] [INFO] ============================================================
+
+[12:13:38] [DATA]   Latitude: 38.033545
+[12:13:38] [DATA]   Longitude: -78.490591
+[12:13:38] [DATA]   Year: 2020
+[12:13:38] [DATA]   Save Name: G5105400
+[12:13:38] [DATA]   File Type: AMY
+[12:13:38] [DATA]   Notes: Debugged from CSV /Users/cbianchi/Documents/GitHub/EPWgen/epwgen/outputs/FIPS_2020/FIPS_2020.csv
+[12:13:38] [STEP] STEP 1: Retrieving weather data
+[12:13:51] [SUCCESS] ✓ Data retrieval completed
+[12:13:51] [DATA]   Status: True
+[12:13:51] [DATA]   WMO Station: 72410
+[12:13:51] [DATA]   HDD (base 65F): 3502
+[12:13:51] [DATA]   CDD (base 65F): 1376
+[12:13:51] [DATA]   Station Latitude: 37.3167
+[12:13:51] [DATA]   Station Longitude: -79.2
+[12:13:51] [DATA]   Flags: {6: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0}, 7: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0}, 8: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0}, 33: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0}, 30: {'original_holes': 8784, 'interpolated': 0, 'filled_merra2': 8784}, 21: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0}, 20: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0}, 9: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0}}
+[12:13:51] [STEP] STEP 2: Checking EPW file creation
+[12:13:51] [SUCCESS] ✓ EPW file created: G5105400_2020.epw
+[12:13:51] [DATA]   File size: 1,915,824 bytes
+[12:13:51] [STEP] STEP 3: Calculating distance to weather station
+[12:13:51] [DATA]   Distance to station: 62.91 miles
+[12:13:51] [DATA]   Station coordinates: (37.3167, -79.2)
+[12:13:51] [STEP] STEP 4: Running quality checks
+[12:13:51] [SUCCESS] ✓ Quality checks completed
+[12:13:51] [DATA]   Missing Data: Good
+[12:13:51] [DATA]   Extreme Temperature: Good
+[12:13:51] [DATA]   Sudden Temp Jumps: Good
+[12:13:51] [DATA]   Constant Temp Periods: Suspicious
+[12:13:51] [DATA]   Day-Night Swings: Suspicious
+[12:13:51] [DATA]   Summer Freezing: Good
+[12:13:51] [DATA]   Winter Extreme Heat: Good
+[12:13:51] [DATA]   Missing Temperature Data: Good
+[12:13:51] [INFO] 
+============================================================
+[12:13:51] [INFO]   Test Completed Successfully
+[12:13:51] [INFO] ============================================================
+
+[12:13:51] [SUCCESS] ✓ Single-row debug completed successfully

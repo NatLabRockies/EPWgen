@@ -20,6 +20,26 @@ epwgen
 
 ## Installation
 
+### macOS — Quick venv install
+
+If you prefer a lightweight virtualenv on macOS without conda, run:
+
+```bash
+# Create and activate a venv in the project folder
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Upgrade packaging tools
+python -m pip install --upgrade pip setuptools wheel
+
+# Install EPWgen in editable mode (registers `epwgen` command)
+pip install -e .
+
+# Run the app
+epwgen
+```
+
+
 ### Option 1: Recommended - Create a dedicated conda environment
 
 This is the most reliable method that works for everyone:
@@ -352,3 +372,9 @@ All dependencies are automatically installed via pip.
 ## License
 
 MIT License
+
+## Credits
+
+EPWgen was created by Carlo Bianchi.
+Developed at the National Lab of the Rockies (NLR); tool registered under software record SWR-26-017.
+Do not distribute. Confidential.

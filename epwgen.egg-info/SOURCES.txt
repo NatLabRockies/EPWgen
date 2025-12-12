@@ -1,4 +1,3 @@
-MANIFEST.in
 README.md
 setup.py
 epwgen/__init__.py
@@ -21,7 +20,6 @@ epwgen/resources/refined_us_zip_codes_lat_lon_fips.csv
 epwgen/resources/zip_code_list_2022.csv
 epwgen/resources/zip_code_list_2023.csv
 epwgen/resources/zip_code_list_2024.csv
-epwgen/resources/test_MOSMIX/.DS_Store
 epwgen/resources/test_MOSMIX/702770.csv
 epwgen/resources/test_MOSMIX/702770.html
 epwgen/resources/test_MOSMIX/703050.csv

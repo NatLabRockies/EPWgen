@@ -60,6 +60,13 @@ class MainWindow(QWidget):
         layout.addWidget(self.button_csv)
         layout.addWidget(self.button_metered)
 
+        # Add an 'About' link at the bottom (clickable label)
+        about_label = QLabel('<a href="#">About</a>')
+        about_label.setOpenExternalLinks(False)
+        about_label.setAlignment(Qt.AlignCenter)
+        about_label.linkActivated.connect(self.open_about_dialog)
+        layout.addWidget(about_label)
+
         self.setLayout(layout)
 
     def open_individual_dialog(self):
@@ -190,6 +197,18 @@ class MainWindow(QWidget):
                 print(f"✓ Completed year {year}: {retrieve_status}")
 
             print(f"All years from {start_year} to {end_year} have been processed.")
+            # Show summary dialog with branding
+            branding = (
+                "EPWgen\n"
+                "EPWgen was created by Carlo Bianchi.\n"
+                "Developed at NREL; tool registered under software record SWR-26-017.\n"
+                "Do not distribute. Confidential.\n"
+            )
+            QMessageBox.information(
+                self,
+                "Multi-Year Complete",
+                f"All years from {start_year} to {end_year} have been processed.\n\n{branding}"
+            )
 
     def open_metered_dialog(self):
         # Create dialog for metered variables input
@@ -278,12 +297,30 @@ class MainWindow(QWidget):
                 else:
                     message = f"Metered variables downloaded for {location_name}\nYears: {start_year} to {end_year}\n\nAll years combined into single file"
                 
+                # Prepend branding header to CSV file
+                branding_header = (
+                    "# EPWgen\n"
+                    "# EPWgen was created by Carlo Bianchi.\n"
+                    "# Developed at NREL; tool registered under software record SWR-26-017.\n"
+                    "# Do not distribute. Confidential.\n"
+                )
+                try:
+                    # Read the CSV as text, then write branding + original
+                    with open(csv_path, 'r', encoding='utf-8') as f:
+                        original = f.read()
+                    with open(csv_path, 'w', encoding='utf-8') as f:
+                        f.write(branding_header + original)
+                except Exception:
+                    # If writing header fails, continue but log
+                    print("Warning: could not write branding header to CSV")
+
                 QMessageBox.information(
                     self,
                     "Download Complete",
                     f"{message}\n\nFile saved to:\n{csv_path}\n\n"
                     f"Total records: {len(combined_data)}\n"
-                    f"Station: {station_info.get('station_name', 'N/A')} (WMO: {station_info.get('wmo', 'N/A')})"
+                    f"Station: {station_info.get('station_name', 'N/A')} (WMO: {station_info.get('wmo', 'N/A')})\n\n"
+                    f"EPWgen\nEPWgen was created by Carlo Bianchi.\nDeveloped at NREL; tool registered under software record SWR-26-017.\nDo not distribute. Confidential."
                 )
             else:
                 QMessageBox.warning(
@@ -292,6 +329,10 @@ class MainWindow(QWidget):
                     f"No data could be retrieved for {location_name}\n"
                     f"Years: {start_year} to {end_year}"
                 )
+
+    def open_about_dialog(self):
+        dialog = AboutDialog(self)
+        dialog.exec_()
 
     # def show_result_and_map(self, status, distance_mi, wmo, hdd, cdd, lat, lon, lat_station, lon_station, quality_checks, status_EP):
     def show_result_and_map(self, status, distance_mi, wmo, hdd, cdd, lat, lon, lat_station, lon_station, quality_checks, flags):
@@ -387,6 +428,20 @@ class MainWindow(QWidget):
         web_view = QWebEngineView()
         web_view.setUrl(QUrl.fromLocalFile(tmp_file))
         main_layout.addWidget(web_view)
+
+        # Branding block to display at the bottom of the final window
+        branding_html = (
+            "<hr>"
+            "<b>EPWgen</b><br>"
+            "EPWgen was created by Carlo Bianchi.<br>"
+            "Developed at NREL; tool registered under software record SWR-26-017.<br>"
+            "<b>Do not distribute. Confidential.</b><br>"
+        )
+        branding_label = QLabel()
+        branding_label.setTextFormat(Qt.RichText)
+        branding_label.setText(branding_html)
+        branding_label.setAlignment(Qt.AlignCenter)
+        main_layout.addWidget(branding_label)
 
         dialog.setLayout(main_layout)
         dialog.resize(800, 600)  # Make the window large enough to see the map
@@ -819,6 +874,54 @@ def main():
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
+
+
+class AboutDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("About EPWgen")
+        layout = QVBoxLayout()
+
+        about_text = (
+            "<h3>EPWgen</h3>"
+            "<p>EPWgen was created by Carlo Bianchi.</p>"
+            "<p>Developed at the National Lab of the Rockies (NLR); tool registered under software record SWR-26-017.</p>"
+            "<p><b>Do not distribute. Confidential.</b></p>"
+            "<hr>"
+            "<h4>License</h4>"
+            "<p>This software is released under the MIT License.</p>"
+            "<pre>Copyright (c) 2025 Carlo Bianchi\n\n"
+            "Permission is hereby granted, free of charge, to any person obtaining a copy\n"
+            "of this software and associated documentation files (the \"Software\"), to deal\n"
+            "in the Software without restriction, including without limitation the rights\n"
+            "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n"
+            "copies of the Software, and to permit persons to whom the Software is\n"
+            "furnished to do so, subject to the following conditions:\n\n"
+            "The above copyright notice and this permission notice shall be included in all\n"
+            "copies or substantial portions of the Software.\n\n"
+            "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
+            "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n"
+            "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n"
+            "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"
+            "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n"
+            "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n"
+            "SOFTWARE.</pre>"
+        )
+
+        text_widget = QTextEdit()
+        text_widget.setReadOnly(True)
+        text_widget.setHtml(about_text)
+        text_widget.setMinimumSize(600, 400)
+        layout.addWidget(text_widget)
+
+        button_box = QDialogButtonBox(QDialogButtonBox.Close)
+        button_box.rejected.connect(self.reject)
+        button_box.accepted.connect(self.accept)
+        button_box.button(QDialogButtonBox.Close).clicked.connect(self.close)
+        layout.addWidget(button_box)
+
+        self.setLayout(layout)
+
 
 if __name__ == "__main__":
     main()

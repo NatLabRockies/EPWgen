@@ -1,0 +1,6 @@
+InsecureRequestWarning: Unverified HTTPS request is being made to host 'power.larc.nasa.gov'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+
+Starting run_individual_location test...
+run_individual_location returned:
+(True, '72421', 4034, 1384, 39.05, -84.6667, False, {6: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0}, 7: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0}, 8: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0}, 33: {'original_holes': 18, 'interpolated': 3, 'filled_merra2': 15}, 30: {'original_holes': 8784, 'interpolated': 0, 'filled_merra2': 8784}, 21: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0}, 20: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0}, 9: {'original_holes': 0, 'interpolated': 0, 'filled_merra2': 0}})
+

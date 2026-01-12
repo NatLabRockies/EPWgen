@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/cbianchi/Documents/GitHub/EPWgen/epwgen/debug_run.py", line 5, in <module>
+    from epwgen.main import main
+  File "/Users/cbianchi/Documents/GitHub/EPWgen/epwgen/main.py", line 4, in <module>
+    import folium
+ModuleNotFoundError: No module named 'folium'

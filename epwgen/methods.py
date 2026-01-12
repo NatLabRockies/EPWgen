@@ -13,6 +13,7 @@ import subprocess
 import shutil
 import openstudio
 import requests
+from .ssl_utils import get_verify_arg
 
 # Get the directory where this script is located
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -236,7 +237,25 @@ def filter_dataframe_by_date(df, start_date, end_date, timezone=None):
 
 def get_parameters_MERRA2(lat, lon, year):
     api_endpoint = f"https://power.larc.nasa.gov/api/temporal/hourly/point?community=SB&parameters=&longitude={lon}&latitude={lat}&start={year}0101&end={year}1231&format=EPW"
-    response = requests.get(api_endpoint, timeout=30)
+
+    # Determine verify parameter for requests using shared helper
+    verify_arg = get_verify_arg()
+
+    try:
+        response = requests.get(api_endpoint, timeout=30, verify=verify_arg)
+        # Raise for HTTP errors (4xx/5xx)
+        response.raise_for_status()
+    except requests.exceptions.SSLError as e:
+        msg = (
+            f"SSL verification failed when connecting to {api_endpoint}: {e}.\n"
+            f"Requests was using verify={verify_arg}.\n"
+            "If you are on a network with SSL interception (corporate proxy), export the proxy's root cert and set EPWGEN_CA_BUNDLE to its path, or set EPWGEN_VERIFY=0 for debugging."
+        )
+        raise requests.exceptions.SSLError(msg)
+    except requests.exceptions.RequestException as e:
+        msg = f"Failed to fetch MERRA2 data from {api_endpoint}: {e} (verify={verify_arg})"
+        raise requests.exceptions.RequestException(msg)
+
     csv_data = io.StringIO(response.text)
     df = pd.read_csv(csv_data, skiprows=8, header=None)
     header = '\n'.join(response.text.splitlines()[:8])

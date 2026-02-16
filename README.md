@@ -1,0 +1,408 @@
+
+# EPWgen - Enhanced Weather File Generation
+
+## Prerequisites
+
+- **Conda** (Anaconda or Miniconda): Required for environment management and installation. [Download Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://www.anaconda.com/products/distribution).
+       - After installing, open **Anaconda Prompt** (Windows) or a terminal (macOS/Linux) to proceed with the instructions below.
+
+## Overview
+EPWgen is a GUI tool designed to generate high-quality **EnergyPlus Weather (EPW) files** by integrating data from multiple reliable sources, improving accuracy, and addressing issues found in previous methods.
+
+
+## Quick Start
+
+> **Note:** Instructions are provided for both **Windows** and **macOS/Linux** below. Follow the section that matches your operating system.
+
+
+## Quick Installation
+
+### macOS/Linux
+For the fastest installation, use the automated script:
+
+```bash
+cd /path/to/EPWgen
+./install.sh
+```
+
+Then run:
+```bash
+conda activate epwgen
+epwgen
+```
+
+### Windows
+Open **Anaconda Prompt** (not PowerShell or CMD) and run:
+
+```bat
+cd C:\path\to\EPWgen
+conda create -n epwgen python=3.11 -y
+conda activate epwgen
+pip install -e .
+epwgen
+```
+
+If you see a message about 'epwgen' not being recognized, close and reopen Anaconda Prompt, activate the environment again, and try `epwgen`.
+
+## Installation
+
+### macOS — Quick venv install
+
+If you prefer a lightweight virtualenv on macOS without conda, run:
+
+```bash
+# Create and activate a venv in the project folder
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Upgrade packaging tools
+python -m pip install --upgrade pip setuptools wheel
+
+# Install EPWgen in editable mode (registers `epwgen` command)
+pip install -e .
+
+# Run the app
+epwgen
+```
+
+
+### Option 1: Recommended - Create a dedicated conda environment
+
+This is the most reliable method that works for everyone:
+
+```bash
+# Create a new environment with Python 3.11
+conda create -n epwgen python=3.11 -y
+
+# Activate the environment
+conda activate epwgen
+
+# Install EPWgen from the repository directory
+cd /path/to/EPWgen
+pip install -e .
+```
+
+### Option 2: Install from GitHub (for users without the repository)
+
+```bash
+# Create a new environment
+conda create -n epwgen python=3.11 -y
+conda activate epwgen
+
+# Install directly from GitHub
+pip install git+https://github.com/yourusername/EPWgen.git
+```
+
+### Option 3: Use existing Python environment
+
+If you already have a Python environment with PyQt5:
+
+```bash
+# Activate your environment
+conda activate your_environment
+
+# Navigate to the EPWgen directory
+cd /path/to/EPWgen
+
+# Install
+pip install -e .
+```
+
+### Running EPWgen
+
+After installation:
+
+```bash
+# Activate the environment (if not already activated)
+conda activate epwgen
+
+# Run the application
+epwgen
+```
+
+### Troubleshooting
+
+**Issue: Dependency conflict with pandas/isd**
+- EPWgen uses relaxed pandas version (>=1.3.0) to accommodate the `isd` package requirement
+- Installation will use pandas 1.5.3 with numpy 1.x for compatibility
+- This configuration has been tested and works reliably
+
+**Issue: PyQt5 installation hangs or fails**
+- Use conda to install PyQt5 first: `conda install -c conda-forge pyqt`
+- Then install EPWgen: `pip install -e .`
+
+
+**Issue: "epwgen: command not found"**
+- Make sure you've activated the correct environment: `conda activate epwgen`
+- On **Windows**, if you just installed, close and reopen Anaconda Prompt, activate the environment again, and try `epwgen`.
+- Reinstall: `pip install -e . --force-reinstall`
+
+**Issue: Import errors**
+- Ensure all dependencies are installed: `pip install -r requirements.txt` (if available)
+- Or install manually: `pip install folium pandas PyQt5 PyQtWebEngine meteostat timezonefinder pytz requests openstudio`
+
+## Usage Modes
+
+EPWgen provides four operational modes through an intuitive GUI:
+
+### 1. Individual Location
+Generate an EPW file for a single location and year.
+- Enter latitude, longitude, location name, and year
+- Outputs saved to `outputs/` folder
+
+### 2. Multi-Year Location
+Generate EPW files for one location across multiple years.
+- Enter latitude, longitude, location name, start year, and end year
+- All files saved to `outputs/` folder
+
+### 3. CSV Batch Processing
+Process multiple locations from a CSV file.
+
+**Required CSV Format:**
+```csv
+Latitude,Longitude,Location Name,Year
+40.7128,-74.0060,New York,2022
+34.0901,-118.4065,Beverly Hills,2022
+41.8781,-87.6298,Chicago,2021
+```
+
+**Output:**
+- EPW files saved to `outputs/[csv_filename]/`
+- Updated CSV with metadata saved to same folder
+- **Progress is saved after each successful download**
+- **Restart interrupted batch jobs**: If you restart, EPWgen will automatically detect the progress file and resume from where it left off, skipping already-downloaded locations
+
+**How Resume Works:**
+1. **First Run**: EPWgen reads your original CSV and creates `outputs/[csv_name]/[csv_name].csv`
+2. **Progress Saved**: After each successful EPW download, the CSV is updated with metadata
+3. **Restart**: If you run the same CSV again, EPWgen detects the existing progress file
+4. **Resume**: Loads from the progress file instead of the original CSV
+5. **Skip Completed**: Already-processed locations (with EPW files) are automatically skipped
+6. **Continue**: Only processes remaining locations
+
+**Example Workflow:**
+```
+Original CSV: locations.csv (100 locations)
+              ↓
+       Run CSV Batch Job
+              ↓
+    Downloads 40 EPW files → saves outputs/locations/locations.csv (40 rows with metadata)
+              ↓
+       [Process interrupted]
+              ↓
+       Run CSV Batch Job again (select same locations.csv)
+              ↓
+    EPWgen detects outputs/locations/locations.csv exists
+              ↓
+    Loads progress file (40 rows already have metadata)
+              ↓
+    Skips first 40 locations (EPW files exist)
+              ↓
+    Continues with location 41-100
+```
+
+This means you can safely interrupt and restart CSV batch jobs without losing progress!
+
+### 4. Download Metered Variables (NOAA Data Only)
+Download raw metered weather variables without EPW processing.
+- **Data Source**: NOAA/Meteostat only (no MERRA-2 integration)
+- **Output Format**: Single CSV file with raw hourly data
+- **Multi-Year Handling**: All years are combined into a single CSV file
+- **No Processing**: Data saved directly without EPW header or quality adjustments
+- Enter latitude, longitude, location name, start year, and end year
+- If start year equals end year, downloads data for a single year only
+- **Single year**: Saved as `LocationName_YEAR_metered.csv`
+- **Multiple years**: Saved as `LocationName_STARTYEAR-ENDYEAR_metered.csv` (e.g., `New_York_2020-2022_metered.csv`)
+- All files saved to `outputs/` folder
+- **Use Case**: For users who need raw measured data for custom processing or analysis
+
+**Example Output:**
+The CSV file will contain hourly data with columns like:
+- Temperature (temp)
+- Dew Point (dwpt)
+- Relative Humidity (rhum)
+- Precipitation (prcp)
+- Wind Speed (wspd)
+- Wind Direction (wdir)
+- Pressure (pres)
+- And other available meteorological variables from the NOAA station
+
+**Example for multi-year download:**
+```
+Location: New York
+Years: 2020-2022
+Output: New_York_2020-2022_metered.csv
+Contains: ~26,280 hourly records (3 years × 8,760 hours/year)
+Datetime index spans from 2020-01-01 00:00:00 to 2022-12-31 23:00:00
+```
+
+### Data Sources:
+#### **MERRA-2**
+- Global dataset with data available everywhere, including **Alaska**
+- **Near real-time availability**
+- Provides **full EPWs** that act as the backbone
+- **EPWgen swaps in key variables**:
+  - **Tdb** (Dry Bulb Temperature)
+  - **Tdew** (Dew Point Temperature)
+  - **RH** (Relative Humidity)
+  - **P** (Pressure)
+  - **Wdir** (Wind Direction)
+  - **Wspeed** (Wind Speed)
+  - **Rain** (Precipitation)
+  - **Snow**
+
+#### **Meteostat**
+- Free, open-source library: [Meteostat Documentation](https://dev.meteostat.net/)
+- **Real-time data**
+- **Expanded coverage (~2700 locations vs. ~1200)**
+- **Data sources include**:
+  - **National Weather Service**
+  - **ISD (Global Dataset)**
+  - **SYNOP reports**
+  - **METAR reports**
+  - **MOSMIX model data** (used for gap filling)
+
+---
+
+## Data Processing Workflow
+
+1. **Find the closest Meteostat location** with < 3-hour data gaps.
+2. **Gather the EPW file** from MERRA-2 based on selected station coordinates.
+3. **Splice the two datasets** for enhanced accuracy.
+4. **Insert metadata header**, including ASHRAE **2021 design conditions** and **ground temperatures**.
+5. **Save the final EPW file** and output key metadata:
+   - **Station distance**
+   - **HDD/CDD (Heating & Cooling Degree Days)**
+   - **Extreme Temperature Quality Checks**
+
+---
+
+## Output Metadata (CSV Batch Processing)
+
+When processing CSV files, the following columns are added to track data quality and station information:
+
+### **Status**
+Indicates whether the EPW file was successfully retrieved. Used with EPW file existence to determine if processing is complete.
+- **TRUE**: EPW file successfully generated
+- **FALSE or empty**: Download failed or incomplete
+
+### **Distance_Miles**
+Distance in miles between the requested location and the actual weather station used for measured data.
+
+### **Station_WMO**
+WMO (World Meteorological Organization) code identifying the weather station used for NOAA/Meteostat data.
+
+### **Station_Latitude** / **Station_Longitude**
+Geographic coordinates of the weather station that provided measured data.
+
+### **HDD_base65F** / **CDD_base65F**
+Heating Degree Days and Cooling Degree Days calculated with base temperature of 65°F for the generated EPW.
+
+### **Data Quality Tracking (per variable)**
+For each of 8 weather variables, three columns track data sources and gap-filling:
+
+**Temperature (Temp_*):**
+- `Temp_Total_Holes`: Number of missing hours in original NOAA data
+- `Temp_Interpolated`: Hours filled using linear interpolation (for gaps ≤3 hours)
+- `Temp_MERRA2_Fill`: Hours filled using MERRA-2 satellite data (for gaps >3 hours)
+
+**Dew Point (Dewpoint_*):**
+- `Dewpoint_Total_Holes`: Original missing hours
+- `Dewpoint_Interpolated`: Interpolated hours
+- `Dewpoint_MERRA2_Fill`: MERRA-2 filled hours
+
+**Relative Humidity (RH_*):**
+- `RH_Total_Holes`: Original missing hours
+- `RH_Interpolated`: Interpolated hours
+- `RH_MERRA2_Fill`: MERRA-2 filled hours
+
+**Pressure (Pressure_*):**
+- `Pressure_Total_Holes`: Original missing hours
+- `Pressure_Interpolated`: Interpolated hours
+- `Pressure_MERRA2_Fill`: MERRA-2 filled hours
+
+**Wind Direction (WindDir_*):**
+- `WindDir_Total_Holes`: Original missing hours
+- `WindDir_Interpolated`: Interpolated hours
+- `WindDir_MERRA2_Fill`: MERRA-2 filled hours
+
+**Wind Speed (WindSpeed_*):**
+- `WindSpeed_Total_Holes`: Original missing hours
+- `WindSpeed_Interpolated`: Interpolated hours
+- `WindSpeed_MERRA2_Fill`: MERRA-2 filled hours
+
+**Snow Depth (Snow_*):**
+- `Snow_Total_Holes`: Original missing hours (typically all hours, as snow is rarely measured)
+- `Snow_Interpolated`: Interpolated hours
+- `Snow_MERRA2_Fill`: MERRA-2 filled hours
+
+**Precipitation (Precipitation_*):**
+- `Precipitation_Total_Holes`: Original missing hours
+- `Precipitation_Interpolated`: Interpolated hours
+- `Precipitation_MERRA2_Fill`: MERRA-2 filled hours
+
+**Note**: EPWgen prioritizes measured data from NOAA/Meteostat. For small gaps (≤3 hours), linear interpolation is used. For larger gaps or unavailable variables (like snow depth), MERRA-2 satellite/model data fills the gaps.
+
+### **Quality Check Columns (QC_*)**
+Diagnostic columns identifying potential data anomalies for manual review:
+- **QC_Missing_Data**: Checks for NaN values in the final EPW
+- **QC_Extreme_Temperature**: Flags temperatures outside -50°C to 60°C
+- **QC_Sudden_Temp_Jumps**: Detects temperature changes > 15°C per hour
+- **QC_Constant_Temp_Periods**: Identifies periods with no temperature variation
+- **QC_Day-Night_Swings**: Flags unrealistic daily temperature ranges
+- **QC_Summer_Freezing**: Detects freezing temperatures in summer months (Northern Hemisphere)
+- **QC_Winter_Extreme_Heat**: Identifies extreme heat in winter months (Northern Hemisphere)
+- **QC_Missing_Temperature_Data**: Checks for missing temperature values
+
+---
+
+## Quality Check Details
+
+Quality checks are **diagnostic tests** that flag potential anomalies for manual review. They do **not automatically discard files** but help identify data that may require closer inspection:
+
+- **Extreme Values**: Temperatures outside physically reasonable ranges
+- **Sudden Jumps**: Rapid temperature changes that may indicate sensor errors
+- **Constant Periods**: Extended periods without temperature variation
+- **Unrealistic Swings**: Daily temperature ranges that are too small or too large
+- **Seasonal Mismatches**: Summer freezing or winter extreme heat events
+- **Missing Data**: Gaps in temperature records
+
+---
+
+## Features
+
+- **Incremental Progress Saving**: CSV progress saved after each successful EPW download
+- **Resume from Interruption**: Automatically resumes from existing progress file if batch job is restarted
+- **Skip Existing Files**: Automatically skips already-downloaded EPW files during batch processing
+- **Progress Tracking**: Never lose your work - all progress is continuously saved
+- **Comprehensive Metadata**: Detailed quality checks and station information
+- **Interactive Map**: View requested location vs. weather station location (individual mode)
+- **Clean Output**: Organized folder structure with all files in `outputs/` directory
+
+---
+
+## Requirements
+
+- Python 3.11+
+- PyQt5
+- pandas
+- folium
+- meteostat
+- openstudio
+- timezonefinder
+- pytz
+- requests
+
+All dependencies are automatically installed via pip.
+
+---
+
+## License
+
+MIT License
+
+## Credits
+
+EPWgen was created by Carlo Bianchi.
+Developed at the National Lab of the Rockies (NLR); tool registered under software record SWR-26-017.
+Do not distribute. Confidential.

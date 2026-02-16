@@ -1,0 +1,8 @@
+# Ignore debug outputs and logs
+outputs/
+*.txt
+*.log
+
+# But keep the README and config
+!README.md
+!test_locations.json

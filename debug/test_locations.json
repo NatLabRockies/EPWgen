@@ -1,0 +1,24 @@
+{
+  "test_cases": [
+    {
+      "name": "Test Case 1",
+      "latitude": 41.925187,
+      "longitude": -84.052388,
+      "year": 2007,
+      "save_name": "DEBUG_Test1",
+      "file_type": "AMY",
+      "enabled": true,
+      "notes": "Default test location"
+    },
+    {
+      "name": "Test Case 2",
+      "latitude": 32.3,
+      "longitude": -86.0667,
+      "year": 2007,
+      "save_name": "DEBUG_Test2",
+      "file_type": "AMY",
+      "enabled": true,
+      "notes": "Default test location"
+    }
+  ]
+}

@@ -252,15 +252,10 @@ Datetime index spans from 2020-01-01 00:00:00 to 2022-12-31 23:00:00
   - **Snow**
 
 #### **Meteostat**
-- Free, open-source library: [Meteostat Documentation](https://dev.meteostat.net/)
-- **Real-time data**
-- **Expanded coverage (~2700 locations vs. ~1200)**
-- **Data sources include**:
-  - **National Weather Service**
-  - **ISD (Global Dataset)**
-  - **SYNOP reports**
-  - **METAR reports**
-  - **MOSMIX model data** (used for gap filling)
+- Open-source library (v2.x): [Meteostat on PyPI](https://pypi.org/project/meteostat/)
+- **Real-time data** fetched directly from national meteorological agencies
+- **US coverage via NOAA**; international coverage via DWD (Germany), ECCC (Canada), Met.no (Norway), GeoSphere Austria
+- EPWgen selects the nearest station with fewer than 3 consecutive missing hours
 
 ---
 

@@ -24,7 +24,7 @@ setup(
         "pandas>=1.3.0",  # Relaxed to accommodate isd package requirement
         "PyQt5>=5.15.0",
         "PyQtWebEngine>=5.15.0",
-        "meteostat>=1.6.0",
+        "meteostat>=2.0.0",
         "timezonefinder>=6.0.0",
         "pytz>=2023.0",
         "requests>=2.28.0",

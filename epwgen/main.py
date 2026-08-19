@@ -98,21 +98,11 @@ class MainWindow(QWidget):
                 flags
             ) = run_individual_location(lat, lon, year, file_type, save_folder, save_name)
 
-            # Run Quality Check and EnergyPlus simulation
             filename = f"{save_name.replace(' ', '_').replace('.', '_')}_{year}.epw"
+            epw_path = os.path.join(save_folder, filename)
 
-            # If user picked "." as save folder (same folder), just use filename
-            if save_folder == '.':
-                epw_path = filename
-            else:
-                epw_path = os.path.join(save_folder, filename)
-
-            # Check if file really exists
             if not os.path.isfile(epw_path):
                 raise FileNotFoundError(f"❌ EPW file not found: {epw_path}")
-
-            quality_checks = check_epw_quality(epw_path)
-
 
             quality_checks = check_epw_quality(epw_path)
             # status_EP = run_energyplus_simulations(epw_path)
@@ -164,13 +154,8 @@ class MainWindow(QWidget):
                 # Run Quality Check for each year
                 filename = f"{save_name.replace(' ', '_').replace('.', '_')}_{year}.epw"
 
-                # If user picked "." as save folder (same folder), just use filename
-                if save_folder == '.':
-                    epw_path = filename
-                else:
-                    epw_path = os.path.join(save_folder, filename)
+                epw_path = os.path.join(save_folder, filename)
 
-                # Check if file really exists
                 if not os.path.isfile(epw_path):
                     print(f"❌ EPW file not found for year {year}: {epw_path}")
                     continue

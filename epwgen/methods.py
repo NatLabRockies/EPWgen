@@ -1,32 +1,15 @@
-import os, sys, math, ssl, io, pytz, numpy as np, pandas as pd, requests
+import os, sys, math, ssl, io, calendar, shutil, subprocess, pytz
+import numpy as np
+import pandas as pd
+import requests
 from datetime import datetime, timedelta, date
+from pandas.errors import EmptyDataError
 from timezonefinder import TimezoneFinder
 import meteostat as ms
-from isd import Batch
-from scp import SCPClient
-import paramiko, warnings, math, calendar, io, ssl
-import pandas as pd
-import numpy as np
-from pandas.errors import EmptyDataError
-import pytz
-import subprocess
-import shutil
 import openstudio
-import requests
 from .ssl_utils import get_verify_arg
 
-# Get the directory where this script is located
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-import paramiko
-import calendar
-from pandas.errors import EmptyDataError
-import shutil
-import subprocess
-import openstudio
-
-
-import os
-import pandas as pd
 
 def check_epw_quality(epw_path):
     """
@@ -350,7 +333,7 @@ def check_missing_hours(year, df):
     """
     Checks for missing hours in the DataFrame's datetime index for a specified year.
     """
-    full_index = pd.date_range(start=f"{year}-01-01", end=f"{year+1}-01-01", freq="H")
+    full_index = pd.date_range(start=f"{year}-01-01", end=f"{year+1}-01-01", freq="h")
     missing_hours = full_index.difference(df.index)
     missing_hours_num = len(missing_hours)
 
@@ -379,10 +362,9 @@ def get_noaa_merra2_data(lat, lon, year, file_type, save_folder, save_name='DEBU
     """
     retrieve_status = True
     try:
-        data_noaa, tz, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists, incomplete_timeseries = get_data_noaa(lat, lon, year, save_folder)
+        data_noaa, tz, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists, incomplete_timeseries = get_data_noaa(lat, lon, year, save_folder, save_name)
     except (ConnectionError, OSError, Exception) as e:
         raise ValueError(f"Failed to download NOAA data: {str(e)}")
-    # data_noaa, tz, distance, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists, incomplete_timeseries = get_data_noaa(lat, lon, year, save_folder)
     if epw_exists:
         df_merged = ''
         retrieve_status = False
@@ -414,18 +396,7 @@ def get_noaa_merra2_data(lat, lon, year, file_type, save_folder, save_name='DEBU
     try:
         data_noaa_tz_adj = filter_dataframe_by_date(convert_utc_to_local(data_noaa, tz), datetime(year, 1, 1), datetime(year+1, 1, 1))
     except AttributeError:
-        # print("We don't have NOAA data for this location/year")
-        df_merged = ''
-        retrieve_status = False
-        # distance = np.nan
-        hdd = ''
-        cdd = ''
-        latitude_station = ''
-        longitude_station = ''
-        info_dict = '' 
-        epw_exists = False
-        # return df_merged, retrieve_status, info_dict, distance, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists
-        return df_merged, retrieve_status, info_dict, hdd, cdd, wmo, latitude_station, longitude_station, epw_exists
+        return '', False, '', '', '', wmo, '', '', False, ''
 
     info_dict = {
     'timeshift': get_time_shift(tz),
@@ -439,26 +410,20 @@ def get_noaa_merra2_data(lat, lon, year, file_type, save_folder, save_name='DEBU
     'weather_file_type': file_type
     }
 
-    data_noaa_tz_adj_h = data_noaa_tz_adj.resample('H').mean()
+    data_noaa_tz_adj_h = data_noaa_tz_adj.resample('h').mean()
     data_noaa_tz_adj_h_interpolated = data_noaa_tz_adj_h.interpolate(method='linear', limit=3, limit_direction='both')
     hdd, cdd = calculate_hdd_cdd(data_noaa_tz_adj_h_interpolated, 'temp')
-    try:
-        df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
-    except (EmptyDataError, requests.exceptions.Timeout, requests.exceptions.RequestException) as e:
+    _merra2_exc = None
+    for _attempt in range(1, 6):
         try:
-            print(f"⚠️  Retrying MERRA2 download (attempt 2/5)...")
             df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
-        except (EmptyDataError, requests.exceptions.Timeout, requests.exceptions.RequestException):
-            try:
-                print(f"⚠️  Retrying MERRA2 download (attempt 3/5)...")
-                df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
-            except (EmptyDataError, requests.exceptions.Timeout, requests.exceptions.RequestException):
-                try:
-                    print(f"⚠️  Retrying MERRA2 download (attempt 4/5)...")
-                    df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
-                except (EmptyDataError, requests.exceptions.Timeout, requests.exceptions.RequestException):
-                    print(f"⚠️  Retrying MERRA2 download (attempt 5/5)...")
-                    df_merra2, header_merra2 = get_parameters_MERRA2(latitude_station, longitude_station, year)
+            break
+        except (EmptyDataError, requests.exceptions.Timeout, requests.exceptions.RequestException) as e:
+            _merra2_exc = e
+            if _attempt < 5:
+                print(f"⚠️  Retrying MERRA2 download (attempt {_attempt + 1}/5)...")
+    else:
+        raise _merra2_exc
 
 
     # add datetime index to MERRA2
@@ -577,8 +542,11 @@ def calculate_hdd_cdd(df, temperature_column):
 
     return int(total_hdd), int(total_cdd)
 
-def check_epw_exists(save_folder, year, wmo):
-    return os.path.exists(f'{save_folder}/{wmo}_{year}.epw')
+def check_epw_exists(save_folder, year, wmo, save_name=None):
+    if save_name is not None:
+        name = save_name.replace(' ', '_').replace('.', '_')
+        return os.path.exists(os.path.join(save_folder, f'{name}_{year}.epw'))
+    return os.path.exists(os.path.join(save_folder, f'{wmo}_{year}.epw'))
 
 def calc_combined_ground_temperatures(df):
     """
@@ -593,6 +561,7 @@ def calc_combined_ground_temperatures(df):
     Returns:
         str: Combined GROUND TEMPERATURES line in EPW file format for all depths.
     """
+    df = df.copy()
     depths = [0.5, 2, 4]  # Depths to consider (in meters)
 
     # Conversion utility
@@ -739,12 +708,10 @@ _HOURLY_PARAMS = [
     ms.Parameter.PRES,
 ]
 
-def get_data_noaa(lat, lon, year, save_folder):
+def get_data_noaa(lat, lon, year, save_folder, save_name=None):
     """
     Fetches NOAA data for a given location and year, handling timezones and missing data.
     """
-    ssl._create_default_https_context = ssl._create_unverified_context
-
     start = datetime(year - 1, 12, 31)
     end   = datetime(year + 1, 1, 2)
 
@@ -761,7 +728,7 @@ def get_data_noaa(lat, lon, year, save_folder):
     for station_id, station_row in nearby_df.iterrows():
         wmo = fix_wmo(str(station_id))
 
-        if check_epw_exists(save_folder, year, wmo):
+        if check_epw_exists(save_folder, year, wmo, save_name):
             epw_exists = True
             incomplete_timeseries = False
             break
@@ -797,21 +764,6 @@ def update_if_missing(df, index, col_name, new_value):
         df[col_name] = np.nan
     if pd.isna(df.at[index, col_name]) or not df.at[index, col_name]:
         df.at[index, col_name] = new_value
-
-def retrieve_info_other_location(wmo, zipcodes, year):
-
-    flags = {6: '', 7: '', 8: ''}
-
-    retrieve_status = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"EPW_file_name_{year}"].values[0]
-    # distance = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"distance_location_station_miles_{year}"].values[0]
-    hdd = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"hdd_base65F_{year}"].values[0]
-    cdd = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"cdd_base65F_{year}"].values[0]
-
-    flags[6] = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"Tdb_holes_{year}"].values[0]
-    flags[7] = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"Tdew_holes_{year}"].values[0]
-    flags[8] = zipcodes[zipcodes[f"weather_station_wmo_{year}"]==str(wmo)][f"RH_holes_{year}"].values[0]
-    # return retrieve_status, distance, hdd, cdd
-    return retrieve_status, hdd, cdd, flags
 
 def get_wmo_from_icao_NOAA(icao_code):
     # Path to the local CSV file in the resource folder
@@ -916,9 +868,23 @@ def find_closest_design_condition(lat,lon,design_conditions_file):
 def retrieve_distance_station_location(wmo, lat_location, lon_location):
     meteostat_stations_path = os.path.join(SCRIPT_DIR, 'resources', 'meteostat_stats.csv')
     meteostat_stations = pd.read_csv(meteostat_stations_path, index_col='id')
-    lat_station = meteostat_stations[meteostat_stations.index == wmo]['latitude'].values[0]
-    lon_station = meteostat_stations[meteostat_stations.index == wmo]['longitude'].values[0]
+    matches = meteostat_stations[meteostat_stations.index == wmo]
+    if not matches.empty:
+        lat_station = matches['latitude'].values[0]
+        lon_station = matches['longitude'].values[0]
+    else:
+        # Station not in bundled CSV; try a live Meteostat lookup
+        try:
+            nearby = ms.stations.nearby(ms.Point(lat_location, lon_location), limit=100)
+            if wmo in nearby.index:
+                lat_station = nearby.loc[wmo, 'latitude']
+                lon_station = nearby.loc[wmo, 'longitude']
+            else:
+                print(f"Warning: WMO {wmo} not found in station registry; distance unavailable.")
+                return np.float64(0.0), lat_location, lon_location
+        except Exception:
+            return np.float64(0.0), lat_location, lon_location
     distance_km = haversine_distance(lat_location, lon_location, lat_station, lon_station)
-    distance_mi = distance_km*0.621371
+    distance_mi = distance_km * 0.621371
     return distance_mi, lat_station, lon_station
 

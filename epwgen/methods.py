@@ -1,7 +1,7 @@
 import os, sys, math, ssl, io, pytz, numpy as np, pandas as pd, requests
 from datetime import datetime, timedelta, date
 from timezonefinder import TimezoneFinder
-from meteostat import Stations, Hourly
+import meteostat as ms
 from isd import Batch
 from scp import SCPClient
 import paramiko, warnings, math, calendar, io, ssl
@@ -728,65 +728,69 @@ def fix_wmo(wmo):
 
     # return wmo
 
+_HOURLY_PARAMS = [
+    ms.Parameter.TEMP,
+    ms.Parameter.DWPT,
+    ms.Parameter.RHUM,
+    ms.Parameter.PRCP,
+    ms.Parameter.SNOW,
+    ms.Parameter.WDIR,
+    ms.Parameter.WSPD,
+    ms.Parameter.PRES,
+]
+
 def get_data_noaa(lat, lon, year, save_folder):
     """
     Fetches NOAA data for a given location and year, handling timezones and missing data.
     """
-    # Disable SSL verification
     ssl._create_default_https_context = ssl._create_unverified_context
 
     start = datetime(year - 1, 12, 31)
-    end = datetime(year + 1, 1, 2)
+    end   = datetime(year + 1, 1, 2)
 
-    stations = Stations().nearby(lat, lon)
+    point     = ms.Point(lat, lon)
+    nearby_df = ms.stations.nearby(point, radius=500000, limit=50)
 
-    epw_exists = False
-    station_number = 0
-    len_data = 0
-
+    epw_exists            = False
     incomplete_timeseries = True
-    while incomplete_timeseries:
-        station_number += 1
-        wmo = fix_wmo(str(stations.fetch(station_number).index.values[-1]))
-        # First check if EPW already exists
+    data                  = ''
+    wmo                   = ''
+    station_id            = None
+    station_row           = None
+
+    for station_id, station_row in nearby_df.iterrows():
+        wmo = fix_wmo(str(station_id))
+
         if check_epw_exists(save_folder, year, wmo):
             epw_exists = True
             incomplete_timeseries = False
             break
-        data = Hourly(stations.fetch(station_number), start, end, model=True).fetch()
-        if (len(data.index) >100) & (station_number>1):
-            data = data.loc[data.index.get_level_values('station').unique()[-1]]
 
-        len_data = len(data.index)
+        ts   = ms.hourly(str(station_id), start, end, parameters=_HOURLY_PARAMS)
+        data = ts.fetch()
+
+        if data is None or data.empty:
+            continue
+
         missing_hours_num, largest_consecutive_group = check_missing_hours(year, data)
-        if (len_data > 8000) & (largest_consecutive_group <= 3):
+        if (len(data.index) > 8000) and (largest_consecutive_group <= 3):
             incomplete_timeseries = False
+            break
 
-    if epw_exists | incomplete_timeseries:
-        data = ''
-        timezone = ''
-        # distance = ''
-        elevation = ''
-        station_name = ''
-        state = ''
-        country = ''
-        latitude_station = ''
-        longitude_station = ''
-                
-    else:
-        station_info = stations.fetch(station_number)
-        timezone = station_info['timezone'].values[-1]
-        elevation = station_info['elevation'].values[-1]
-        # distance = stations.fetch()['distance'].values[-1]
-        wmo = fix_wmo(str(station_info.index.values[-1]))
-        station_name = (station_info['name'].values[-1]).replace(',', '_')
-        state = station_info['region'].values[-1]
-        country = station_info['country'].values[-1]
-        latitude_station = station_info['latitude'].values[-1]
-        longitude_station = station_info['longitude'].values[-1]
+    if epw_exists or incomplete_timeseries:
+        return '', '', '', wmo, '', '', '', '', '', epw_exists, incomplete_timeseries
 
-    # return data, timezone, distance, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists,incomplete_timeseries
-    return data, timezone, elevation, wmo, station_name, state, country, latitude_station, longitude_station, epw_exists,incomplete_timeseries
+    timezone          = station_row['timezone']
+    elevation         = station_row['elevation']
+    station_name      = str(station_row['name']).replace(',', '_')
+    state             = station_row['region']
+    country           = station_row['country']
+    latitude_station  = station_row['latitude']
+    longitude_station = station_row['longitude']
+    wmo               = fix_wmo(str(station_id))
+
+    return (data, timezone, elevation, wmo, station_name, state, country,
+            latitude_station, longitude_station, epw_exists, incomplete_timeseries)
 
 def update_if_missing(df, index, col_name, new_value):
     if col_name not in df.columns:

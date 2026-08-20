@@ -269,7 +269,8 @@ def merge_data(df, data):
 
     #Fix pressure units:
     # Check if df[9] is at least one order of magnitude (10x) higher than data['pres']
-    if data['pres'].mean() != 0 and df[9].mean() >= 10 * data['pres'].mean():
+    _pres_mean = data['pres'].mean()
+    if not pd.isna(_pres_mean) and _pres_mean != 0 and df[9].mean() >= 10 * _pres_mean:
         data['pres'] = data['pres'] * 100
 
     # Initialize flags for ALL columns - tracking count of filled hours
